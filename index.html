@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XIIMBAL — Invitaciones</title>
+
+  <!-- Google Fonts (mismas que las invitaciones) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-cream: #F5EFE0;
+      --olive-dark: #2E371E;
+      --terracotta: #8D3B1A;
+      --ocher: #B57C2E;
+      --hairline: #D9CEB8;
+      --cream-soft: #EFE7D4;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background-color: var(--bg-cream);
+      color: var(--olive-dark);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      min-height: 100vh;
+    }
+
+    body {
+      background-image:
+        radial-gradient(rgba(46, 55, 30, 0.025) 1px, transparent 0),
+        radial-gradient(rgba(141, 59, 26, 0.02) 1px, var(--bg-cream) 0);
+      background-size: 28px 28px;
+      background-position: 0 0, 14px 14px;
+    }
+
+    .container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 5rem;
+      text-align: center;
+    }
+
+    /* Header */
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      border: 2px solid var(--ocher);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: var(--olive-dark);
+      margin-bottom: 1.5rem;
+    }
+
+    .kicker {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--olive-dark);
+      line-height: 1.15;
+      margin: 0.5rem 0 0.75rem;
+    }
+
+    .subtitle {
+      font-style: italic;
+      font-weight: 500;
+      font-size: clamp(1.1rem, 3vw, 1.35rem);
+      color: var(--olive-dark);
+      max-width: 420px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.5;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 2rem auto;
+      max-width: 280px;
+    }
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--hairline);
+    }
+    .divider-diamond {
+      width: 10px; height: 10px;
+      background: var(--ocher);
+      transform: rotate(45deg);
+      flex-shrink: 0;
+    }
+
+    /* Cards grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2rem;
+    }
+
+    .card {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: #FFFFFF;
+      border: 1.5px solid var(--hairline);
+      text-decoration: none;
+      color: var(--olive-dark);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 16px rgba(46, 55, 30, 0.06);
+    }
+
+    .card:hover {
+      border-color: var(--ocher);
+      box-shadow: 0 8px 28px rgba(46, 55, 30, 0.12);
+      transform: translateY(-2px);
+    }
+
+    .card-number {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--olive-dark);
+      color: var(--bg-cream);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .card-text {
+      text-align: left;
+    }
+
+    .card-title {
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--olive-dark);
+    }
+
+    .card-sub {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 16px;
+      color: var(--terracotta);
+      margin-top: 2px;
+    }
+
+    .card-arrow {
+      margin-left: auto;
+      color: var(--ocher);
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .card:hover .card-arrow {
+      transform: translateX(4px);
+    }
+
+    /* Corner ornaments on cards */
+    .card::before, .card::after {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      border-color: var(--terracotta);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .card::before { top: -4px; left: -4px; border-top: 2px solid; border-left: 2px solid; }
+    .card::after  { bottom: -4px; right: -4px; border-bottom: 2px solid; border-right: 2px solid; }
+    .card:hover::before, .card:hover::after { opacity: 1; }
+
+    /* Footer */
+    .footer {
+      margin-top: 4rem;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(46, 55, 30, 0.45);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+
+    <div class="brand-badge">X·M</div>
+
+    <p class="kicker">Experiencia Gastronómica</p>
+    <h1>XIIMBAL</h1>
+    <p class="subtitle">
+      Donde el territorio se vuelve sabor.<br>
+      Selecciona tu invitación personal.
+    </p>
+
+    <div class="divider">
+      <span class="divider-line"></span>
+      <span class="divider-diamond"></span>
+      <span class="divider-line"></span>
+    </div>
+
+    <div class="grid">
+
+      <a href="INVITACION_1/1.html" class="card">
+        <span class="card-number">1</span>
+        <div class="card-text">
+          <span class="card-title">Invitación 1</span>
+          <span class="card-sub">Acceso personal</span>
+        </div>
+        <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a href="INVITACION_2/2.html" class="card">
+        <span class="card-number">2</span>
+        <div class="card-text">
+          <span class="card-title">Invitación 2</span>
+          <span class="card-sub">Acceso personal</span>
+        </div>
+        <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a href="INVITACION_3/3.html" class="card">
+        <span class="card-number">3</span>
+        <div class="card-text">
+          <span class="card-title">Invitación 3</span>
+          <span class="card-sub">Acceso personal</span>
+        </div>
+        <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a href="INVITACION_4/4.html" class="card">
+        <span class="card-number">4</span>
+        <div class="card-text">
+          <span class="card-title">Invitación 4</span>
+          <span class="card-sub">Acceso personal</span>
+        </div>
+        <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a href="INVITACION_5/5.html" class="card">
+        <span class="card-number">5</span>
+        <div class="card-text">
+          <span class="card-title">Invitación 5</span>
+          <span class="card-sub">Acceso personal</span>
+        </div>
+        <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a href="INVITACION_6/6.html" class="card">
+        <span class="card-number">6</span>
+        <div class="card-text">
+          <span class="card-title">Invitación 6</span>
+          <span class="card-sub">Acceso personal</span>
+        </div>
+        <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a href="INVITACION_7/7.html" class="card">
+        <span class="card-number">7</span>
+        <div class="card-text">
+          <span class="card-title">Invitación 7</span>
+          <span class="card-sub">Acceso personal</span>
+        </div>
+        <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+      <a href="INVITACION_8/8.html" class="card">
+        <span class="card-number">8</span>
+        <div class="card-text">
+          <span class="card-title">Invitación 8</span>
+          <span class="card-sub">Acceso personal</span>
+        </div>
+        <svg class="card-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+
+    </div>
+
+    <div class="divider" style="margin-top: 3rem;">
+      <span class="divider-line"></span>
+      <span class="divider-diamond"></span>
+      <span class="divider-line"></span>
+    </div>
+
+    <p class="footer">XIIMBAL · Jueves 10 · Dic · 2026</p>
+
+  </div>
+
+</body>
+</html>
+

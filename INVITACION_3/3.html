@@ -1,0 +1,3261 @@
+﻿<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>XIIMBAL — Donde el territorio se vuelve sabor</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Cormorant Garamond (Editorial Serif) & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            crema: {
+              DEFAULT: '#F5EFE0',
+              soft: '#EFE7D4',
+              line: '#D9CEB8'
+            },
+            oliva: {
+              DEFAULT: '#2E371E',
+              mid: '#3B4426'
+            },
+            terracota: {
+              DEFAULT: '#8D3B1A',
+              light: '#A14824'
+            },
+            ocre: {
+              DEFAULT: '#B57C2E',
+              light: '#C89246'
+            }
+          },
+          fontFamily: {
+            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+            sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg-cream: #F5EFE0;
+      --olive-dark: #2E371E;
+      --terracotta: #8D3B1A;
+      --ocher: #B57C2E;
+      --hairline: #D9CEB8;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Lienzo continuo de papel crema (#F5EFE0) sin cajas ni tarjetas */
+    html, body {
+      background-color: var(--bg-cream);
+      color: var(--olive-dark);
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Sutil grano de papel algodón continuo */
+    body {
+      background-image:
+        radial-gradient(rgba(46, 55, 30, 0.025) 1px, transparent 0),
+        radial-gradient(rgba(141, 59, 26, 0.02) 1px, #F5EFE0 0);
+      background-size: 28px 28px;
+      background-position: 0 0, 14px 14px;
+    }
+
+    body.envelope-locked {
+      overflow: hidden;
+      height: 100vh;
+    }
+
+    /* =====================================================================
+       SOBRE 3D DE PANTALLA COMPLETA (ESTILO EDITORIAL SPONSALIA)
+       ===================================================================== */
+    .envelope-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background-color: #EDE4CF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 2000px;
+      transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.9s;
+    }
+
+    .envelope-overlay.is-hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .envelope-stage {
+      position: relative;
+      width: 100%;
+      max-width: 480px;
+      height: 100dvh;
+      max-height: 860px;
+      background-color: #F5EFE0;
+      transform-style: preserve-3d;
+      overflow: hidden;
+      box-shadow: 0 25px 70px rgba(46, 55, 30, 0.22);
+      transition: transform 1.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Hoja interna que emerge hacia el usuario al abrirse el sobre */
+    .envelope-inner-sheet {
+      position: absolute;
+      inset: 0;
+      background-color: #F5EFE0;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      transform: scale(0.86);
+      opacity: 0.7;
+      transition: transform 1.35s cubic-bezier(0.22, 1, 0.36, 1) 0.35s,
+                  opacity 0.9s ease 0.3s;
+    }
+
+    .envelope-overlay.opening .envelope-inner-sheet {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    /* Solapas izquierda y derecha de corte triangular/editorial */
+    .envelope-flap-left,
+    .envelope-flap-right {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50.5%;
+      z-index: 15;
+      transform-style: preserve-3d;
+      transition: transform 1.45s cubic-bezier(0.64, 0, 0.2, 1) 0.3s,
+                  box-shadow 1.2s ease 0.3s;
+    }
+
+    .envelope-flap-left {
+      left: 0;
+      transform-origin: left center;
+      background: linear-gradient(100deg, #F5EFE0 0%, #EFE6D2 88%, #E6DBC4 100%);
+      border-right: 1px solid rgba(181, 124, 46, 0.28);
+      box-shadow: 8px 0 25px rgba(46, 55, 30, 0.12);
+    }
+
+    .envelope-flap-right {
+      right: 0;
+      transform-origin: right center;
+      background: linear-gradient(-100deg, #F5EFE0 0%, #EFE6D2 88%, #E6DBC4 100%);
+      border-left: 1px solid rgba(255, 255, 255, 0.7);
+      box-shadow: -10px 0 28px rgba(46, 55, 30, 0.16);
+    }
+
+    /* Líneas diagonales de pliegue de sobre */
+    .envelope-flap-left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(35deg, transparent 49.6%, rgba(181, 124, 46, 0.22) 49.8%, rgba(255,255,255,0.6) 50.3%, transparent 50.6%),
+        linear-gradient(145deg, transparent 49.6%, rgba(181, 124, 46, 0.22) 49.8%, rgba(255,255,255,0.6) 50.3%, transparent 50.6%);
+      pointer-events: none;
+    }
+
+    .envelope-flap-right::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(-35deg, transparent 49.6%, rgba(181, 124, 46, 0.22) 49.8%, rgba(255,255,255,0.6) 50.3%, transparent 50.6%),
+        linear-gradient(-145deg, transparent 49.6%, rgba(181, 124, 46, 0.22) 49.8%, rgba(255,255,255,0.6) 50.3%, transparent 50.6%);
+      pointer-events: none;
+    }
+
+    .envelope-overlay.opening .envelope-flap-left {
+      transform: rotateY(-150deg);
+    }
+
+    .envelope-overlay.opening .envelope-flap-right {
+      transform: rotateY(150deg);
+    }
+
+    /* Listón satinado horizontal y moño central */
+    .ribbon-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 25;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      transition: transform 0.85s cubic-bezier(0.55, 0.05, 0.67, 0.19),
+                  opacity 0.6s ease 0.2s;
+    }
+
+    .envelope-overlay.opening .ribbon-layer {
+      transform: translateY(280px) rotate(3deg);
+      opacity: 0;
+    }
+
+    .ribbon-strip-left,
+    .ribbon-strip-right {
+      position: absolute;
+      top: 50%;
+      height: 40px;
+      width: 52%;
+      transform: translateY(-50%);
+      background: linear-gradient(180deg,
+        #6E2B11 0%,
+        #8D3B1A 24%,
+        #A64B26 48%,
+        #B57C2E 52%,
+        #8D3B1A 78%,
+        #59210B 100%);
+      box-shadow: 0 8px 20px rgba(46, 55, 30, 0.28);
+      transition: transform 0.65s ease;
+    }
+
+    .ribbon-strip-left { left: 0; }
+    .ribbon-strip-right { right: 0; }
+
+    .envelope-overlay.opening .ribbon-strip-left {
+      transform: translate(-45px, 45px) rotate(-14deg);
+    }
+
+    .envelope-overlay.opening .ribbon-strip-right {
+      transform: translate(45px, 45px) rotate(14deg);
+    }
+
+    /* Animaciones suaves y orgánicas */
+    @keyframes swayLeaf {
+      0%, 100% { transform: rotate(0deg) translateY(0); }
+      50% { transform: rotate(2.8deg) translateY(-2px); }
+    }
+
+    @keyframes floatMusicNote {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-6px); }
+    }
+
+    @keyframes wineStreamFlow {
+      0% { stroke-dashoffset: 24; }
+      100% { stroke-dashoffset: 0; }
+    }
+
+    .leaf-gentle {
+      transform-origin: center;
+      animation: swayLeaf 5.5s ease-in-out infinite;
+    }
+
+    .note-anim-1 { animation: floatMusicNote 3.2s ease-in-out infinite; }
+    .note-anim-2 { animation: floatMusicNote 3.8s ease-in-out 0.6s infinite; }
+    .note-anim-3 { animation: floatMusicNote 3.5s ease-in-out 1.2s infinite; }
+
+    .wine-stream {
+      stroke-dasharray: 6 6;
+      animation: wineStreamFlow 0.9s linear infinite;
+    }
+
+    /* Giro suave del vinilo de Jazz cuando está sonando */
+    @keyframes spinVinyl {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .vinyl-disc {
+      transform-origin: 110px 110px;
+      animation: spinVinyl 9s linear infinite;
+      animation-play-state: paused;
+    }
+
+    .jazz-active .vinyl-disc {
+      animation-play-state: running;
+    }
+
+    .tonearm-group {
+      transform-origin: 186px 38px;
+      transform: rotate(-22deg);
+      transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .jazz-active .tonearm-group {
+      transform: rotate(4deg);
+    }
+
+    /* Pulso sutil de instrumento activo en el quinteto */
+    .inst-pill {
+      transition: all 0.25s ease;
+    }
+
+    .inst-pill.is-muted {
+      opacity: 0.42;
+      text-decoration: line-through;
+    }
+
+    .inst-dot {
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    .inst-dot.playing-hit {
+      transform: scale(1.75);
+      background-color: #8D3B1A;
+    }
+
+    /* Aparición suave al hacer scroll */
+    .reveal-on-scroll {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .reveal-on-scroll.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Barras del ecualizador integrado en la barra superior */
+    @keyframes eqPulse {
+      0%, 100% { height: 4px; }
+      50% { height: 14px; }
+    }
+
+    .eq-line {
+      width: 2px;
+      height: 5px;
+      background-color: #F5EFE0;
+      border-radius: 2px;
+      transition: height 0.2s ease;
+    }
+
+    .is-playing .eq-1 { animation: eqPulse 0.65s ease-in-out infinite; }
+    .is-playing .eq-2 { animation: eqPulse 0.5s ease-in-out 0.15s infinite; }
+    .is-playing .eq-3 { animation: eqPulse 0.75s ease-in-out 0.3s infinite; }
+    .is-playing .eq-4 { animation: eqPulse 0.58s ease-in-out 0.1s infinite; }
+
+    .qr-pass-frame {
+      position: relative;
+      background-color: #FFFFFF;
+      box-shadow: 0 14px 36px rgba(46, 55, 30, 0.1);
+    }
+
+    /* Esquinas ornamentales del Pase QR */
+    .qr-corner {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-color: #8D3B1A;
+      pointer-events: none;
+    }
+    .qr-corner-tl { top: -6px; left: -6px; border-top: 2.5px solid; border-left: 2.5px solid; }
+    .qr-corner-tr { top: -6px; right: -6px; border-top: 2.5px solid; border-right: 2.5px solid; }
+    .qr-corner-bl { bottom: -6px; left: -6px; border-bottom: 2.5px solid; border-left: 2.5px solid; }
+    .qr-corner-br { bottom: -6px; right: -6px; border-bottom: 2.5px solid; border-right: 2.5px solid; }
+  </style>
+</head>
+
+<body class="envelope-locked antialiased selection:bg-terracota selection:text-crema">
+
+  <!-- =====================================================================
+       BIBLIOTECA DE VECTORES SVG DEL PDF Y RÉPLICA DEL LOGO OFICIAL
+       ===================================================================== -->
+  <svg class="hidden" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- GRECA MAYA ESCALONADA DEL LOGOTIPO OFICIAL -->
+      <g id="mayan-fret-divider">
+        <path d="M20 24 Q95 22.5 170 24 Q95 25.5 20 24 Z" fill="#3B4426"/>
+        <circle cx="184" cy="24" r="3.8" fill="#B57C2E"/>
+        <path d="M196 24 L202 24 L202 18 L208 18 L208 12 L214 12 L214 6 L226 6 L226 12 L232 12 L232 18 L238 18 L238 24 L244 24 L238 24 L238 30 L232 30 L232 36 L226 36 L226 42 L214 42 L214 36 L208 36 L208 30 L42 30 L202 30 L202 24 Z" fill="none" stroke="#8D3B1A" stroke-width="3.2" stroke-linejoin="miter"/>
+        <polygon points="220,14 230,24 220,34 210,24" fill="none" stroke="#8D3B1A" stroke-width="2.4"/>
+        <polygon points="220,19 225,24 220,29 215,24" fill="#B57C2E"/>
+        <circle cx="256" cy="24" r="3.8" fill="#B57C2E"/>
+        <path d="M270 24 Q345 22.5 420 24 Q345 25.5 270 24 Z" fill="#3B4426"/>
+      </g>
+
+      <!-- ORNAMENTO CENTRAL DE GRECA MAYA (REEMPLAZA LOS 3 RECTÁNGULOS VACÍOS) -->
+      <g id="mayan-top-emblem">
+        <circle cx="22" cy="24" r="3.2" fill="#B57C2E"/>
+        <path d="M36 24 L42 24 L42 18 L48 18 L48 12 L54 12 L54 6 L66 6 L66 12 L72 12 L72 18 L78 18 L78 24 L84 24 L78 24 L78 30 L72 30 L72 36 L66 36 L66 42 L54 42 L54 36 L48 36 L48 30 L42 30 L42 24 Z" fill="none" stroke="#8D3B1A" stroke-width="2.8" stroke-linejoin="miter"/>
+        <polygon points="60,14 70,24 60,34 50,24" fill="none" stroke="#8D3B1A" stroke-width="2.2"/>
+        <polygon points="60,19 65,24 60,29 55,24" fill="#B57C2E"/>
+        <circle cx="98" cy="24" r="3.2" fill="#B57C2E"/>
+      </g>
+
+      <!-- RAMAS BOTÁNICAS EN FRANJAS DEDICADAS (NUNCA SE ENCIMAN AL TEXTO) -->
+      <g id="botanical-band-left">
+        <path d="M0 18 C75 22, 138 56, 185 95" stroke="#8D3B1A" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+        <g class="leaf-gentle">
+          <path d="M48 68 C58 44, 82 32, 108 32 C98 56, 74 70, 48 68 Z" fill="#2E371E"/>
+          <path d="M54 64 L102 35" stroke="#F5EFE0" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+        <g class="leaf-gentle">
+          <path d="M112 72 C118 50, 134 34, 154 28 C152 50, 136 68, 112 72 Z" fill="#8D3B1A"/>
+          <path d="M117 67 L149 33" stroke="#F5EFE0" stroke-width="1.5" stroke-linecap="round"/>
+        </g>
+        <g class="leaf-gentle">
+          <path d="M168 78 C158 54, 164 28, 176 12 C188 32, 186 60, 168 78 Z" fill="#2E371E"/>
+          <path d="M170 71 L175 18" stroke="#F5EFE0" stroke-width="1.5" stroke-linecap="round"/>
+        </g>
+      </g>
+
+      <g id="botanical-band-right">
+        <path d="M220 18 C145 22, 82 56, 35 95" stroke="#8D3B1A" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+        <g class="leaf-gentle">
+          <path d="M172 68 C162 44, 138 32, 112 32 C122 56, 146 70, 172 68 Z" fill="#2E371E"/>
+          <path d="M166 64 L118 35" stroke="#F5EFE0" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+        <g class="leaf-gentle">
+          <path d="M108 72 C102 50, 86 34, 66 28 C68 50, 84 68, 108 72 Z" fill="#8D3B1A"/>
+          <path d="M103 67 L71 33" stroke="#F5EFE0" stroke-width="1.5" stroke-linecap="round"/>
+        </g>
+        <g class="leaf-gentle">
+          <path d="M52 78 C62 54, 56 28, 44 12 C32 32, 34 60, 52 78 Z" fill="#2E371E"/>
+          <path d="M50 71 L45 18" stroke="#F5EFE0" stroke-width="1.5" stroke-linecap="round"/>
+        </g>
+      </g>
+
+      <!-- RÉPLICA VECTORIAL FIEL DEL LOGOTIPO OFICIAL (logo.png) -->
+      <g id="xiimbal-official-logo-svg">
+        <!-- Contorno de México en Terracota (#8D3B1A) -->
+        <path d="M170 18
+                 C195 26, 225 40, 252 46
+                 C268 49, 276 42, 288 47
+                 C302 53, 306 68, 318 74
+                 C328 79, 336 74, 344 82
+                 C352 90, 352 104, 360 115
+                 C368 126, 362 142, 366 158
+                 C370 172, 382 185, 388 198
+                 C364 176, 355 152, 356 128
+                 C356 112, 346 96, 336 86
+                 C326 80, 316 84, 306 76
+                 C295 66, 292 54, 280 51
+                 C268 48, 258 56, 242 52
+                 C218 46, 196 34, 176 26
+                 C179 44, 186 64, 195 82
+                 C198 88, 190 92, 194 98
+                 C202 108, 212 118, 214 132
+                 C216 144, 226 156, 224 166
+                 C220 172, 212 164, 208 154
+                 C204 142, 204 128, 196 118
+                 C188 108, 182 96, 184 86
+                 C176 66, 170 42, 166 22 Z"
+              fill="#8D3B1A"/>
+        <path d="M192 42
+                 C202 46, 214 62, 222 78
+                 C230 94, 236 108, 240 124
+                 C244 138, 236 154, 226 146
+                 C220 138, 224 124, 216 112
+                 C208 100, 198 86, 194 68
+                 C190 56, 188 46, 192 42 Z"
+              fill="none" stroke="#8D3B1A" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M204 54
+                 C222 78, 244 106, 266 138
+                 C284 164, 286 186, 282 204
+                 C296 222, 326 242, 356 262
+                 C378 276, 394 292, 398 308"
+              fill="none" stroke="#8D3B1A" stroke-width="7.5" stroke-linecap="round"/>
+
+        <!-- Pencas de Agave en Verde Olivo (#3B4426) -->
+        <path d="M402 276 C378 242, 346 208, 318 182 C348 196, 380 228, 402 276 Z" fill="#3B4426"/>
+        <path d="M406 272 C392 224, 384 176, 382 140 C400 176, 408 224, 406 272 Z" fill="#3B4426"/>
+        <path d="M412 272 C412 218, 422 164, 438 122 C436 172, 426 226, 412 272 Z" fill="#3B4426"/>
+        <path d="M418 276 C432 232, 456 190, 484 158 C466 202, 442 244, 418 276 Z" fill="#3B4426"/>
+        <path d="M396 280 C366 258, 336 240, 312 230 C342 234, 372 252, 396 280 Z" fill="#3B4426"/>
+
+        <!-- Hojas botánicas laterales (#3B4426) -->
+        <path d="M238 312 C186 266, 134 214, 96 172 C78 164, 62 162, 52 164 C84 188, 114 236, 156 272 C186 296, 214 304, 238 312 Z" fill="#3B4426"/>
+        <path d="M98 188 C136 228, 178 268, 232 308" stroke="#F5EFE0" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+        <path d="M422 312 C474 266, 526 214, 564 172 C582 164, 598 162, 608 164 C576 188, 546 236, 504 272 C474 296, 446 304, 422 312 Z" fill="#3B4426"/>
+        <path d="M562 188 C524 228, 482 268, 428 308" stroke="#F5EFE0" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+        <!-- Ramitas de laurel superiores -->
+        <path d="M168 232 C164 188, 148 148, 126 116" stroke="#3B4426" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M126 116 C116 102, 118 90, 128 96 C134 104, 132 112, 126 116 Z" fill="#3B4426"/>
+        <path d="M142 142 C122 134, 112 122, 116 114 C128 116, 138 128, 142 142 Z" fill="#3B4426"/>
+        <path d="M146 138 C152 122, 162 112, 170 116 C168 128, 158 136, 146 138 Z" fill="#3B4426"/>
+        <path d="M156 172 C136 164, 124 152, 128 144 C140 146, 152 158, 156 172 Z" fill="#3B4426"/>
+
+        <path d="M492 232 C496 188, 512 148, 534 116" stroke="#3B4426" stroke-width="3" stroke-linecap="round" fill="none"/>
+        <path d="M534 116 C544 102, 542 90, 532 96 C526 104, 528 112, 534 116 Z" fill="#3B4426"/>
+        <path d="M518 142 C538 134, 548 122, 544 114 C532 116, 522 128, 518 142 Z" fill="#3B4426"/>
+        <path d="M514 138 C508 122, 498 112, 490 116 C492 128, 502 136, 514 138 Z" fill="#3B4426"/>
+        <path d="M504 172 C524 164, 536 152, 532 144 C520 146, 508 158, 504 172 Z" fill="#3B4426"/>
+
+        <!-- Mazorcas de Cacao en Terracota -->
+        <g transform="translate(95, 255) rotate(22)">
+          <path d="M0 20 C18 -4, 56 -4, 76 20 C56 44, 18 44, 0 20 Z" fill="#9E4722"/>
+          <path d="M8 20 Q38 24 68 20" stroke="#F5EFE0" stroke-width="2.2" fill="none"/>
+          <circle cx="22" cy="11" r="2.8" fill="#F5EFE0"/>
+          <circle cx="34" cy="9" r="3" fill="#F5EFE0"/>
+          <circle cx="46" cy="10" r="2.8" fill="#F5EFE0"/>
+          <circle cx="56" cy="13" r="2.4" fill="#F5EFE0"/>
+        </g>
+
+        <g transform="translate(565, 255) scale(-1, 1) rotate(22)">
+          <path d="M0 20 C18 -4, 56 -4, 76 20 C56 44, 18 44, 0 20 Z" fill="#9E4722"/>
+          <path d="M8 20 Q38 24 68 20" stroke="#F5EFE0" stroke-width="2.2" fill="none"/>
+          <circle cx="22" cy="11" r="2.8" fill="#F5EFE0"/>
+          <circle cx="34" cy="9" r="3" fill="#F5EFE0"/>
+          <circle cx="46" cy="10" r="2.8" fill="#F5EFE0"/>
+          <circle cx="56" cy="13" r="2.4" fill="#F5EFE0"/>
+        </g>
+
+        <!-- Detalles Ocre y Terracota en la base botánica -->
+        <path d="M330 336 C322 318, 322 302, 330 292 C338 302, 338 318, 330 336 Z" fill="#3B4426"/>
+        <path d="M322 332 C304 312, 280 308, 272 322 C266 332, 282 340, 290 330" stroke="#9E4722" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <path d="M338 332 C356 312, 380 308, 388 322 C394 332, 378 340, 370 330" stroke="#9E4722" stroke-width="8" stroke-linecap="round" fill="none"/>
+        <path d="M236 322 C214 304, 192 302, 174 308" stroke="#B57C2E" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M424 322 C446 304, 468 302, 486 308" stroke="#B57C2E" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <path d="M122 312 C148 332, 184 330, 212 318 C222 314, 232 320, 238 330" stroke="#3B4426" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <path d="M538 312 C512 332, 476 330, 448 318 C438 314, 428 320, 422 330" stroke="#3B4426" stroke-width="7" stroke-linecap="round" fill="none"/>
+
+        <!-- Tipografía XIIMBAL (#2E371E) con rombo ocre en la A -->
+        <text x="330" y="446" text-anchor="middle" font-family="'Cormorant Garamond', Georgia, serif" font-size="134" font-weight="700" fill="#2E371E" letter-spacing="8">
+          XIIMBAL
+        </text>
+        <polygon points="484,414 493,428 484,442 475,428" fill="#B57C2E"/>
+        <polygon points="484,422 487,428 484,434 481,428" fill="#F5EFE0"/>
+
+        <!-- Lema en Terracota (#8D3B1A) -->
+        <text x="330" y="488" text-anchor="middle" font-family="'Cormorant Garamond', Georgia, serif" font-size="33" font-weight="500" fill="#8D3B1A" letter-spacing="1.2">
+          Donde el territorio se vuelve sabor
+        </text>
+
+        <!-- Greca Maya Escalonada Inferior -->
+        <g transform="translate(110, 498)">
+          <path d="M20 24 Q95 22.5 170 24 Q95 25.5 20 24 Z" fill="#3B4426"/>
+          <circle cx="184" cy="24" r="3.8" fill="#B57C2E"/>
+          <path d="M196 24 L202 24 L202 18 L208 18 L208 12 L214 12 L214 6 L226 6 L226 12 L232 12 L232 18 L238 18 L238 24 L244 24 L238 24 L238 30 L232 30 L232 36 L226 36 L226 42 L214 42 L214 36 L208 36 L208 30 L202 30 L202 24 Z" fill="none" stroke="#8D3B1A" stroke-width="3.2" stroke-linejoin="miter"/>
+          <polygon points="220,14 230,24 220,34 210,24" fill="none" stroke="#8D3B1A" stroke-width="2.4"/>
+          <polygon points="220,19 225,24 220,29 215,24" fill="#B57C2E"/>
+          <circle cx="256" cy="24" r="3.8" fill="#B57C2E"/>
+          <path d="M270 24 Q345 22.5 420 24 Q345 25.5 270 24 Z" fill="#3B4426"/>
+        </g>
+      </g>
+    </defs>
+  </svg>
+
+  <!-- =====================================================================
+       1. SOBRE INTERACTIVO 3D A PANTALLA COMPLETA
+       ===================================================================== -->
+  <div id="envelopeOverlay" class="envelope-overlay select-none">
+    <div id="envelopeTrigger" class="envelope-stage cursor-pointer group" role="button" tabindex="0" aria-label="Toca para abrir la invitación de XIIMBAL">
+
+      <!-- Hoja interior que emerge al abrirse las solapas -->
+      <div class="envelope-inner-sheet">
+        <div class="w-56 sm:w-64 mx-auto">
+          <!-- COLOCA logo.png EN LA MISMA CARPETA QUE index.html -->
+          <img
+            src="logo.png"
+            alt="XIIMBAL Logo"
+            class="xiimbal-logo-img w-full h-auto object-contain mx-auto"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <svg style="display:none;" class="w-full h-auto mx-auto" viewBox="0 0 660 545" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <use href="#xiimbal-official-logo-svg"/>
+          </svg>
+        </div>
+        <p class="font-serif italic text-lg text-terracota mt-4">
+          10 · 12 · 2026
+        </p>
+      </div>
+
+      <!-- Solapa Izquierda -->
+      <div class="envelope-flap-left flex flex-col justify-between p-6">
+        <div class="text-right pr-2 pt-14">
+          <span class="font-serif italic text-2xl text-oliva/80 tracking-wide">Xiimbal</span>
+        </div>
+      </div>
+
+      <!-- Solapa Derecha con grabado botánico -->
+      <div class="envelope-flap-right flex flex-col justify-between p-6">
+        <div class="text-left pl-2 pt-14">
+          <span class="font-serif italic text-lg text-terracota/85">Cocina de Raíz</span>
+        </div>
+        <svg class="w-28 h-28 self-end opacity-25 mr-2 mb-20" viewBox="0 0 220 110">
+          <use href="#botanical-band-right"/>
+        </svg>
+      </div>
+
+      <!-- Listón Satinado Horizontal y Moño 3D Central -->
+      <div class="ribbon-layer">
+        <div class="ribbon-strip-left"></div>
+        <div class="ribbon-strip-right"></div>
+
+        <div class="relative z-30 group-hover:scale-105 transition-transform duration-500">
+          <svg class="w-64 h-56 drop-shadow-[0_14px_22px_rgba(46,55,30,0.32)]" viewBox="0 0 260 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="bowLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#A64B26"/>
+                <stop offset="50%" stop-color="#8D3B1A"/>
+                <stop offset="90%" stop-color="#68280F"/>
+                <stop offset="100%" stop-color="#4A1B09"/>
+              </linearGradient>
+              <linearGradient id="bowRight" x1="100%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#B55A32"/>
+                <stop offset="48%" stop-color="#8D3B1A"/>
+                <stop offset="88%" stop-color="#68280F"/>
+                <stop offset="100%" stop-color="#4A1B09"/>
+              </linearGradient>
+              <linearGradient id="bowTail" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%" stop-color="#68280F"/>
+                <stop offset="40%" stop-color="#8D3B1A"/>
+                <stop offset="75%" stop-color="#A64B26"/>
+                <stop offset="100%" stop-color="#68280F"/>
+              </linearGradient>
+              <linearGradient id="bowKnot" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#C89246"/>
+                <stop offset="40%" stop-color="#9E4722"/>
+                <stop offset="80%" stop-color="#8D3B1A"/>
+                <stop offset="100%" stop-color="#59210B"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Colas del listón -->
+            <path d="M118 102 C102 135, 84 168, 66 205 L88 198 L98 212 C110 176, 120 140, 128 106 Z" fill="url(#bowTail)"/>
+            <path d="M142 102 C158 135, 176 168, 194 205 L172 198 L162 212 C150 176, 140 140, 132 106 Z" fill="url(#bowTail)"/>
+
+            <!-- Lazos del moño -->
+            <path d="M126 92 C92 52, 34 48, 26 78 C20 105, 72 122, 126 98 Z" fill="url(#bowLeft)" stroke="#B57C2E" stroke-width="0.6"/>
+            <path d="M122 92 C92 74, 52 74, 40 84 C60 94, 94 96, 122 95 Z" fill="#3D1607" opacity="0.45"/>
+
+            <path d="M134 92 C168 52, 226 48, 234 78 C240 105, 188 122, 134 98 Z" fill="url(#bowRight)" stroke="#B57C2E" stroke-width="0.6"/>
+            <path d="M138 92 C168 74, 208 74, 220 84 C200 94, 166 96, 138 95 Z" fill="#3D1607" opacity="0.45"/>
+
+            <!-- Nudo central -->
+            <rect x="114" y="75" width="32" height="36" rx="9" fill="url(#bowKnot)" stroke="#C89246" stroke-width="1.1"/>
+            <polygon points="130,85 136,93 130,101 124,93" fill="#C89246"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Texto minimalista "TOCA PARA ABRIR LA INVITACIÓN" con alto contraste -->
+      <div class="absolute bottom-10 left-0 right-0 z-30 text-center pointer-events-none">
+        <span class="inline-block px-4 py-1.5 bg-crema/95 border border-ocre/50 font-sans text-[11px] font-semibold tracking-[0.26em] uppercase text-oliva shadow-sm animate-pulse">
+          Toca para abrir la invitación
+        </span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       BARRA SUPERIOR MINIMALISTA EN VERDE OLIVA PROFUNDO (#2E371E)
+       (Incluye el control de Jazz para no tapar textos con botones flotantes)
+       ===================================================================== -->
+  <header class="sticky top-0 z-40 bg-oliva text-crema shadow-sm">
+    <div class="max-w-xl mx-auto px-4 sm:px-5 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <a href="#inicio" class="w-9 h-9 rounded-full border border-crema/50 flex items-center justify-center font-serif text-xs font-semibold tracking-widest text-crema hover:border-ocre transition-colors">
+          X·M
+        </a>
+
+        <!-- Botón de Jazz integrado en barra superior (nunca tapa párrafos) -->
+        <button
+          id="headerAudioBtn"
+          type="button"
+          aria-label="Activar o pausar música de Jazz"
+          class="h-9 px-3 rounded-full border border-crema/35 flex items-center gap-2 hover:border-ocre transition-colors"
+          title="Música de Jazz en vivo"
+        >
+          <span class="flex items-center gap-[2.5px] h-4">
+            <span class="eq-line eq-1"></span>
+            <span class="eq-line eq-2"></span>
+            <span class="eq-line eq-3"></span>
+            <span class="eq-line eq-4"></span>
+          </span>
+          <span id="headerAudioLabel" class="font-sans text-[10px] tracking-[0.18em] uppercase text-crema font-medium">
+            Jazz
+          </span>
+        </button>
+      </div>
+
+      <span class="font-serif tracking-[0.24em] text-xs sm:text-sm font-semibold uppercase text-crema">
+        XIIMBAL · 2026
+      </span>
+
+      <button id="replayEnvelopeBtn" type="button" class="text-crema hover:text-ocre transition-colors flex items-center gap-1.5 font-sans text-[10px] font-medium tracking-[0.2em] uppercase" title="Volver a abrir el sobre">
+        <span>Sobre</span>
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- =====================================================================
+       LIENZO EDITORIAL CONTINUO (CERO TARJETAS, CERO CAJAS, ALTO CONTRASTE)
+       ===================================================================== -->
+  <main class="max-w-xl mx-auto px-7 sm:px-12 pb-32">
+
+    <!-- ===================================================================
+         PORTADA PRINCIPAL (HERO) — CERO RECTÁNGULOS VACÍOS
+         =================================================================== -->
+    <section id="inicio" class="pt-10 pb-14 text-center">
+
+      <!-- Ornamento superior de Greca Maya entre ramas botánicas -->
+      <div class="flex justify-between items-center mb-4 pointer-events-none">
+        <svg class="w-28 sm:w-36 h-20 -ml-2" viewBox="0 0 220 110">
+          <use href="#botanical-band-left"/>
+        </svg>
+
+        <svg class="w-28 sm:w-32 h-11 shrink-0" viewBox="0 0 120 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <use href="#mayan-top-emblem"/>
+        </svg>
+
+        <svg class="w-28 sm:w-36 h-20 -mr-2" viewBox="0 0 220 110">
+          <use href="#botanical-band-right"/>
+        </svg>
+      </div>
+
+      <!-- LOGOTIPO OFICIAL (logo.png + respaldo SVG idéntico) -->
+      <div class="w-64 sm:w-80 mx-auto my-2">
+        <!-- COLOCA logo.png EN LA MISMA CARPETA QUE index.html -->
+        <img
+          id="mainLogoImg"
+          src="logo.png"
+          alt="XIIMBAL Logo"
+          class="xiimbal-logo-img w-full h-auto object-contain mx-auto"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+        />
+        <svg style="display:none;" class="w-full h-auto mx-auto" viewBox="0 0 660 545" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="XIIMBAL Donde el territorio se vuelve sabor">
+          <use href="#xiimbal-official-logo-svg"/>
+        </svg>
+      </div>
+
+      <!-- Textos exactos de portada SIN "Te invitamos" y con alto contraste -->
+      <div class="mt-8 space-y-2.5">
+        <p class="font-sans text-[11px] font-semibold tracking-[0.28em] uppercase text-terracota">
+          EXPERIENCIA GASTRONÓMICA
+        </p>
+        <h1 class="font-serif text-3xl sm:text-4xl font-bold tracking-[0.08em] text-oliva uppercase leading-snug">
+          UNA CENA QUE CELEBRA<br />NUESTRAS RAÍCES
+        </h1>
+      </div>
+
+      <p class="font-serif italic font-medium text-xl sm:text-2xl text-oliva leading-relaxed max-w-md mx-auto mt-5">
+        Una experiencia gastronómica inspirada en nuestra tierra, sus sabores y su identidad.
+      </p>
+
+      <!-- Indicador de scroll limpio y legible -->
+      <div class="mt-10 flex flex-col items-center">
+        <a href="#historia" class="font-sans text-[11px] font-medium tracking-[0.24em] uppercase text-oliva hover:text-terracota transition-colors flex flex-col items-center gap-2">
+          <span>Desliza para descubrir la experiencia</span>
+          <span class="w-[1.5px] h-8 bg-terracota block"></span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Franja divisora botánica dedicada (100% separada de los textos) -->
+    <div class="py-4 flex items-center justify-between pointer-events-none">
+      <svg class="w-28 sm:w-36 h-16 -ml-2" viewBox="0 0 220 110">
+        <use href="#botanical-band-left"/>
+      </svg>
+      <svg class="w-40 h-6" viewBox="0 0 440 48">
+        <use href="#mayan-fret-divider"/>
+      </svg>
+      <svg class="w-28 sm:w-36 h-16 -mr-2" viewBox="0 0 220 110">
+        <use href="#botanical-band-right"/>
+      </svg>
+    </div>
+
+    <!-- ===================================================================
+         SECCIÓN HISTORIA (PÁGINA 2 DEL PDF — SIN NUMERACIÓN)
+         =================================================================== -->
+    <section id="historia" class="reveal-on-scroll py-12 text-center">
+      <p class="font-sans text-[11px] font-semibold tracking-[0.26em] uppercase text-oliva">
+        XIIMBAL · DONDE EL TERRITORIO SE VUELVE SABOR
+      </p>
+
+      <h2 class="font-serif italic font-semibold text-4xl sm:text-5xl text-terracota mt-3 mb-8 leading-tight">
+        Cada sabor cuenta<br />una historia
+      </h2>
+
+      <div class="space-y-6 font-serif text-xl sm:text-2xl font-normal text-oliva leading-relaxed max-w-lg mx-auto">
+        <p>
+          Hay sabores que cuentan historias, ingredientes que representan nuestras raíces y experiencias que nos conectan con la riqueza de nuestra tierra.
+        </p>
+        <p>
+          <strong class="font-bold text-oliva">XIIMBAL</strong> celebra la identidad de la cocina mexicana a través de una propuesta contemporánea, con un enfoque en la cocina <em>terroir</em> y de autor.
+        </p>
+        <p>
+          Cada platillo busca transmitir la esencia, la tradición y la riqueza de nuestro territorio.
+        </p>
+      </div>
+
+      <p class="font-serif italic font-semibold text-2xl sm:text-3xl text-terracota mt-10">
+        Un recorrido por nuestra tierra.
+      </p>
+    </section>
+
+    <!-- Franja divisora con Greca Maya -->
+    <div class="py-6 flex justify-center pointer-events-none">
+      <svg class="w-60 h-8" viewBox="0 0 440 48">
+        <use href="#mayan-fret-divider"/>
+      </svg>
+    </div>
+
+    <!-- ===================================================================
+         SECCIÓN CENA DE SEIS TIEMPOS (PÁGINA 3 DEL PDF — SIN NÚMEROS)
+         =================================================================== -->
+    <section id="tiempos" class="reveal-on-scroll py-12 text-center">
+      <p class="font-sans text-[11px] font-semibold tracking-[0.28em] uppercase text-oliva">
+        UNA NOCHE PARA
+      </p>
+      <h2 class="font-serif italic font-semibold text-4xl sm:text-5xl text-terracota mt-1 mb-4">
+        saborear cada momento
+      </h2>
+      <p class="font-serif text-xl sm:text-2xl tracking-[0.22em] uppercase font-bold text-oliva">
+        CENA DE SEIS TIEMPOS
+      </p>
+
+      <div class="max-w-md mx-auto mt-6 space-y-6">
+        <p class="font-serif text-xl sm:text-2xl text-oliva leading-relaxed">
+          Una propuesta gastronómica cuidadosamente creada para recorrer sabores, técnicas e ingredientes que hablan de nuestra identidad.
+        </p>
+
+        <!-- Ornamento sutil central -->
+        <div class="flex items-center justify-center gap-3 py-2">
+          <span class="w-12 h-[1.5px] bg-ocre"></span>
+          <span class="w-2.5 h-2.5 rotate-45 bg-terracota"></span>
+          <span class="w-12 h-[1.5px] bg-ocre"></span>
+        </div>
+
+        <p class="font-serif text-xl sm:text-2xl text-oliva leading-relaxed">
+          La experiencia comenzará con una recepción de bocadillos y coctelería con y sin alcohol, preparando el paladar para la velada.
+        </p>
+
+        <!-- Distintivos Mixología y Vino mexicano con íconos finos en línea -->
+        <div class="flex items-center justify-center gap-6 font-serif text-2xl font-semibold text-oliva pt-3">
+          <span class="inline-flex items-center gap-2">
+            <svg class="w-5 h-5 text-terracota" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 5h16l-7 8v6m-3 0h6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Mixología</span>
+          </span>
+          <span class="text-terracota font-bold">·</span>
+          <span class="inline-flex items-center gap-2">
+            <svg class="w-5 h-5 text-terracota" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M8 3h8l1 6a5 5 0 01-10 0l1-6zm4 11v7m-3 0h6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Vino mexicano</span>
+          </span>
+        </div>
+
+        <p class="font-serif italic font-semibold text-2xl sm:text-3xl text-terracota pt-2">
+          Una celebración para todos los sentidos.
+        </p>
+      </div>
+    </section>
+
+    <!-- Franja divisora botánica dedicada -->
+    <div class="py-4 flex items-center justify-between pointer-events-none">
+      <svg class="w-28 sm:w-36 h-16 -ml-2" viewBox="0 0 220 110">
+        <use href="#botanical-band-left"/>
+      </svg>
+      <svg class="w-40 h-6" viewBox="0 0 440 48">
+        <use href="#mayan-fret-divider"/>
+      </svg>
+      <svg class="w-28 sm:w-36 h-16 -mr-2" viewBox="0 0 220 110">
+        <use href="#botanical-band-right"/>
+      </svg>
+    </div>
+
+    <!-- ===================================================================
+         SECCIÓN EL AMBIENTE PERFECTO: MÚSICA EN VIVO (PÁGINA 4 DEL PDF)
+         EXPERIENCIA INTERACTIVA DEL QUINTETO DE JAZZ AL MÁXIMO NIVEL
+         =================================================================== -->
+    <section id="musica" class="reveal-on-scroll py-12 text-center">
+      <p class="font-sans text-[11px] font-semibold tracking-[0.28em] uppercase text-oliva">
+        EL AMBIENTE PERFECTO
+      </p>
+      <h2 class="font-serif italic font-semibold text-4xl sm:text-5xl text-terracota mt-1 mb-6">
+        Música en vivo
+      </h2>
+
+      <h3 class="font-serif text-3xl sm:text-4xl font-bold tracking-[0.12em] text-oliva uppercase">
+        PALOMA KUH
+      </h3>
+      <p class="font-serif text-lg sm:text-xl font-semibold tracking-[0.2em] text-oliva uppercase mt-1">
+        Y SU QUINTETO DE JAZZ
+      </p>
+
+      <!-- Vinilo Editorial Botánico + Aguja de Gramófono y Estado Armónico en Vivo -->
+      <div id="jazzStageWrapper" class="mt-8 mb-4 flex flex-col items-center">
+        <div class="relative w-56 h-56 mx-auto flex items-center justify-center">
+          <svg class="w-full h-full overflow-visible" viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Tocadiscos botánico de Jazz">
+            <!-- Ramas botánicas sutiles abrazando el vinilo -->
+            <path d="M26 155 C14 122, 18 85, 38 56" stroke="#8D3B1A" stroke-width="1.6" stroke-linecap="round" opacity="0.55"/>
+            <path d="M22 122 C10 108, 12 92, 24 84 C32 96, 30 112, 22 122 Z" fill="#2E371E" opacity="0.75"/>
+            <path d="M32 90 C22 76, 26 62, 38 56 C44 68, 40 82, 32 90 Z" fill="#8D3B1A" opacity="0.75"/>
+
+            <!-- Plato exterior dorado ocre -->
+            <circle cx="110" cy="110" r="86" stroke="#B57C2E" stroke-width="1.4" stroke-dasharray="3 3" opacity="0.7"/>
+            <circle cx="110" cy="110" r="81" stroke="#2E371E" stroke-width="1.2" fill="#2E371E"/>
+
+            <!-- Disco de vinilo giratorio -->
+            <g class="vinyl-disc">
+              <circle cx="110" cy="110" r="79" fill="#232A16"/>
+              <!-- Surcos acústicos del vinilo -->
+              <circle cx="110" cy="110" r="72" stroke="#3B4426" stroke-width="0.9"/>
+              <circle cx="110" cy="110" r="65" stroke="#B57C2E" stroke-width="0.6" stroke-dasharray="18 28" opacity="0.45"/>
+              <circle cx="110" cy="110" r="58" stroke="#3B4426" stroke-width="0.9"/>
+              <circle cx="110" cy="110" r="51" stroke="#F5EFE0" stroke-width="0.5" stroke-dasharray="12 36" opacity="0.25"/>
+              <circle cx="110" cy="110" r="44" stroke="#3B4426" stroke-width="0.9"/>
+
+              <!-- Reflejos satinados diagonales -->
+              <path d="M58 58 L84 84 M136 136 L162 162" stroke="#F5EFE0" stroke-width="1.2" opacity="0.14" stroke-linecap="round"/>
+              <path d="M162 58 L136 84 M84 136 L58 162" stroke="#B57C2E" stroke-width="1.2" opacity="0.18" stroke-linecap="round"/>
+
+              <!-- Etiqueta central en papel crema (#F5EFE0) y terracota -->
+              <circle cx="110" cy="110" r="31" fill="#F5EFE0" stroke="#B57C2E" stroke-width="1.8"/>
+              <circle cx="110" cy="110" r="26" fill="none" stroke="#8D3B1A" stroke-width="0.8" stroke-dasharray="2 2"/>
+
+              <!-- Greca diamantina en la etiqueta del disco -->
+              <polygon points="110,90 116,96 110,102 104,96" fill="#8D3B1A"/>
+              <polygon points="110,93 113,96 110,99 107,96" fill="#B57C2E"/>
+
+              <text x="110" y="122" text-anchor="middle" font-family="'Cormorant Garamond', Georgia, serif" font-size="8.5" font-weight="700" fill="#2E371E" letter-spacing="1.6">
+                PALOMA KUH
+              </text>
+              <text x="110" y="130" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-size="4.8" font-weight="600" fill="#8D3B1A" letter-spacing="1.2">
+                QUINTETO · XIIMBAL
+              </text>
+
+              <!-- Centro del eje -->
+              <circle cx="110" cy="110" r="4.2" fill="#2E371E" stroke="#B57C2E" stroke-width="1.2"/>
+            </g>
+
+            <!-- Brazo fonocaptor (Tonearm) animado -->
+            <g class="tonearm-group">
+              <circle cx="186" cy="38" r="12" fill="#F5EFE0" stroke="#2E371E" stroke-width="1.8"/>
+              <circle cx="186" cy="38" r="5" fill="#B57C2E"/>
+              <path d="M186 38 L176 116 L154 142" stroke="#8D3B1A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="147" y="138" width="11" height="7" rx="1.5" transform="rotate(-38 152 141)" fill="#2E371E" stroke="#B57C2E" stroke-width="1"/>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Indicador en vivo de Progresión Armónica, Compás y Solista -->
+        <div class="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 font-sans text-[10px] font-semibold tracking-[0.22em] uppercase text-oliva/90">
+          <span id="liveStyleBadge" class="text-terracota">VELADA TERROIR · 78 BPM</span>
+          <span class="text-ocre">·</span>
+          <span>ACORDE: <strong id="liveChordReadout" class="font-serif text-base font-bold text-oliva tracking-normal">Dm9</strong></span>
+          <span class="text-ocre">·</span>
+          <span id="liveVoiceReadout" class="font-serif italic text-base font-semibold text-terracota tracking-normal capitalize">Saxofón Tenor &amp; Piano</span>
+        </div>
+      </div>
+
+      <!-- Pentagrama Dorado Vibrante a 60 FPS (Inspirado en la Página 4 del PDF) -->
+      <div class="relative my-4 flex flex-col items-center">
+        <canvas
+          id="jazzStaffCanvas"
+          width="680"
+          height="190"
+          class="w-full max-w-md h-36 sm:h-40 cursor-pointer select-none"
+          title="Toca el pentagrama para improvisar una frase de Saxofón y Vibráfono"
+        ></canvas>
+        <span class="font-sans text-[9px] font-semibold tracking-[0.24em] uppercase text-oliva/70 mt-1">
+          Toca el pentagrama para improvisar notas en vivo
+        </span>
+      </div>
+
+      <!-- Selector de 3 Ambientes Digitales para Explorar la Invitación -->
+      <div class="mt-5 max-w-md mx-auto">
+        <p class="font-sans text-[10px] font-semibold tracking-[0.22em] uppercase text-terracota mb-1">
+          AMBIENTACIÓN DIGITAL PARA TU LECTURA
+        </p>
+        <p class="font-serif italic text-sm sm:text-base text-oliva/85 mb-2.5">
+          Elige una atmósfera sonora mientras recorres la invitación:
+        </p>
+        <div class="grid grid-cols-3 gap-2 border-y border-ocre/45 py-2.5">
+          <button
+            type="button"
+            data-style="ballad"
+            class="jazz-style-btn py-2 px-2 font-serif text-sm sm:text-base font-bold bg-oliva text-crema transition-colors"
+          >
+            I. Velada Terroir
+            <span class="block font-sans text-[9px] font-normal tracking-[0.16em] uppercase opacity-80">Swing Suave</span>
+          </button>
+          <button
+            type="button"
+            data-style="bossa"
+            class="jazz-style-btn py-2 px-2 font-serif text-sm sm:text-base font-semibold text-oliva hover:text-terracota transition-colors"
+          >
+            II. Bossa del Mayab
+            <span class="block font-sans text-[9px] font-normal tracking-[0.16em] uppercase opacity-75">Jazz Latino</span>
+          </button>
+          <button
+            type="button"
+            data-style="upbeat"
+            class="jazz-style-btn py-2 px-2 font-serif text-sm sm:text-base font-semibold text-oliva hover:text-terracota transition-colors"
+          >
+            III. Club Nocturno
+            <span class="block font-sans text-[9px] font-normal tracking-[0.16em] uppercase opacity-75">Quinteto Vivo</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mesa Interactiva de los 5 Instrumentos del Quinteto (Activar / Silenciar en vivo) -->
+      <div class="mt-6 max-w-md mx-auto">
+        <p class="font-sans text-[10px] font-semibold tracking-[0.22em] uppercase text-oliva/80 mb-2.5">
+          QUINTETO INTERACTIVO (TOCA UN INSTRUMENTO PARA SOLISTA / SILENCIAR)
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <button type="button" data-inst="sax" class="inst-pill px-3 py-1.5 border border-oliva/60 text-oliva font-sans text-[10px] font-semibold uppercase tracking-[0.16em] inline-flex items-center gap-1.5">
+            <span id="dot-sax" class="inst-dot w-2 h-2 rounded-full bg-terracota"></span>
+            <span>Saxofón</span>
+          </button>
+          <button type="button" data-inst="piano" class="inst-pill px-3 py-1.5 border border-oliva/60 text-oliva font-sans text-[10px] font-semibold uppercase tracking-[0.16em] inline-flex items-center gap-1.5">
+            <span id="dot-piano" class="inst-dot w-2 h-2 rounded-full bg-ocre"></span>
+            <span>Piano Jazz</span>
+          </button>
+          <button type="button" data-inst="bass" class="inst-pill px-3 py-1.5 border border-oliva/60 text-oliva font-sans text-[10px] font-semibold uppercase tracking-[0.16em] inline-flex items-center gap-1.5">
+            <span id="dot-bass" class="inst-dot w-2 h-2 rounded-full bg-oliva"></span>
+            <span>Contrabajo</span>
+          </button>
+          <button type="button" data-inst="drums" class="inst-pill px-3 py-1.5 border border-oliva/60 text-oliva font-sans text-[10px] font-semibold uppercase tracking-[0.16em] inline-flex items-center gap-1.5">
+            <span id="dot-drums" class="inst-dot w-2 h-2 rounded-full bg-ocre"></span>
+            <span>Escobillas &amp; Ride</span>
+          </button>
+          <button type="button" data-inst="vibes" class="inst-pill px-3 py-1.5 border border-oliva/60 text-oliva font-sans text-[10px] font-semibold uppercase tracking-[0.16em] inline-flex items-center gap-1.5">
+            <span id="dot-vibes" class="inst-dot w-2 h-2 rounded-full bg-terracota"></span>
+            <span>Vibráfono</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Controles Principales de Concierto e Improvisación en Vivo -->
+      <div class="mt-7 max-w-md mx-auto flex flex-col sm:flex-row items-center justify-center gap-3">
+        <button id="jazzSectionBtn" type="button" class="w-full sm:w-auto font-sans text-[11px] font-semibold uppercase tracking-[0.22em] px-7 py-3.5 bg-oliva text-crema hover:bg-terracota transition-colors flex items-center justify-center gap-2.5">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+            <path id="jazzPlayIconPath" d="M8 5v14l11-7z"/>
+          </svg>
+          <span id="jazzBtnLabel">Escuchar Quinteto en Vivo</span>
+        </button>
+
+        <button id="jazzSoloImproBtn" type="button" class="w-full sm:w-auto font-sans text-[10px] font-semibold uppercase tracking-[0.2em] px-5 py-3.5 border-2 border-terracota text-terracota hover:bg-terracota hover:text-crema transition-colors">
+          Improvisar Frase de Sax
+        </button>
+      </div>
+
+      <!-- Nota editorial aclaratoria sobre la ambientación sonora interactiva -->
+      <div class="mt-6 max-w-md mx-auto py-3.5 px-4 border-y border-ocre/45">
+        <p class="font-sans text-[9.5px] font-semibold tracking-[0.22em] uppercase text-terracota mb-1">
+          ✦ NOTA DE EXPERIENCIA SONORA ✦
+        </p>
+        <p class="font-serif italic text-base sm:text-lg text-oliva leading-snug">
+          Las melodías de este reproductor interactivo no corresponden al repertorio que se tocará en el evento; son una ambientación digital creada exclusivamente para brindarte una mejor experiencia mientras recorres esta invitación. El repertorio oficial será interpretado completamente en vivo durante la velada por <strong class="font-semibold not-italic text-oliva">Paloma Kuh y su Quinteto de Jazz</strong>.
+        </p>
+      </div>
+
+      <!-- Audio opcional local (si colocas jazz.mp3 en la misma carpeta se habilita selector) -->
+      <audio id="optionalLocalJazzAudio" src="jazz.mp3" preload="metadata" loop class="hidden"></audio>
+      <div id="localAudioSwitchWrap" class="hidden mt-3">
+        <button id="toggleAudioSourceBtn" type="button" class="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-terracota underline">
+          Alternar a pista grabada (jazz.mp3 detectado)
+        </button>
+      </div>
+
+      <p class="font-serif text-xl sm:text-2xl text-oliva leading-relaxed max-w-md mx-auto mt-8">
+        La noche estará acompañada por música en vivo, creando el ambiente ideal para disfrutar de esta celebración gastronómica.
+      </p>
+
+      <p class="font-serif italic font-semibold text-2xl sm:text-3xl text-terracota mt-8">
+        Gastronomía, cultura y música<br />en una misma experiencia.
+      </p>
+    </section>
+
+    <!-- Franja divisora con Greca Maya -->
+    <div class="py-6 flex justify-center pointer-events-none">
+      <svg class="w-60 h-8" viewBox="0 0 440 48">
+        <use href="#mayan-fret-divider"/>
+      </svg>
+    </div>
+
+    <!-- ===================================================================
+         SECCIÓN ANFITRIONES (PÁGINA 5 DEL PDF — SIN "TE INVITAMOS")
+         =================================================================== -->
+    <section id="anfitriones" class="reveal-on-scroll py-12 text-center">
+      <p class="font-sans text-[11px] font-semibold tracking-[0.28em] uppercase text-oliva">
+        UNA EXPERIENCIA CREADA CON
+      </p>
+      <h2 class="font-serif italic font-semibold text-4xl sm:text-5xl text-terracota mt-1 mb-8">
+        pasión y tradición
+      </h2>
+
+      <div class="space-y-6 font-serif text-xl sm:text-2xl text-oliva leading-relaxed max-w-lg mx-auto">
+        <p>
+          Este evento es presentado por los alumnos de <strong class="font-bold">décimo cuatrimestre, grupo A, de la Licenciatura en Gastronomía</strong> de la <strong class="font-bold">Universidad Tecnológica del Mayab</strong>.
+        </p>
+        <p>
+          Compartimos el resultado de nuestra formación, creatividad y pasión por el arte culinario.
+        </p>
+      </div>
+
+      <div class="w-20 h-[1.5px] bg-ocre mx-auto my-10"></div>
+
+      <!-- Texto transformado eliminando "TE INVITAMOS A" -->
+      <p class="font-serif text-2xl sm:text-3xl font-bold uppercase tracking-[0.14em] text-oliva">
+        FORMA PARTE
+      </p>
+      <p class="font-serif italic font-semibold text-4xl sm:text-5xl text-terracota mt-1 mb-6">
+        de esta velada
+      </p>
+
+      <p class="font-serif text-xl sm:text-2xl text-oliva leading-relaxed max-w-md mx-auto">
+        Donde la gastronomía, la cultura y la música se encuentran para convertir cada momento en un recuerdo inolvidable.
+      </p>
+    </section>
+
+    <!-- Franja divisora botánica dedicada -->
+    <div class="py-4 flex items-center justify-between pointer-events-none">
+      <svg class="w-28 sm:w-36 h-16 -ml-2" viewBox="0 0 220 110">
+        <use href="#botanical-band-left"/>
+      </svg>
+      <svg class="w-40 h-6" viewBox="0 0 440 48">
+        <use href="#mayan-fret-divider"/>
+      </svg>
+      <svg class="w-28 sm:w-36 h-16 -mr-2" viewBox="0 0 220 110">
+        <use href="#botanical-band-right"/>
+      </svg>
+    </div>
+
+    <!-- ===================================================================
+         SECCIÓN RESERVA ESTE MOMENTO, UBICACIÓN Y PASE QR DE ACCESO
+         =================================================================== -->
+    <section id="ubicacion" class="reveal-on-scroll py-12 text-center">
+      <p class="font-sans text-[11px] font-semibold tracking-[0.28em] uppercase text-oliva">
+        RESERVA ESTE MOMENTO
+      </p>
+      <h2 class="font-serif text-3xl sm:text-4xl font-bold tracking-[0.12em] text-oliva uppercase mt-2">
+        XIIMBAL
+      </h2>
+      <p class="font-serif italic font-medium text-xl text-terracota">
+        Donde el territorio se vuelve sabor
+      </p>
+
+      <!-- Cuenta regresiva limpia con alto contraste (DÍAS, HORAS, MINUTOS, SEGUNDOS) -->
+      <div class="grid grid-cols-4 gap-2 max-w-md mx-auto items-baseline mt-10">
+        <div>
+          <span id="cd-days" class="block font-serif text-4xl sm:text-5xl font-semibold text-oliva tracking-tight">00</span>
+          <span class="block font-sans text-[10px] font-semibold tracking-[0.22em] uppercase text-oliva mt-2">DÍAS</span>
+        </div>
+        <div>
+          <span id="cd-hours" class="block font-serif text-4xl sm:text-5xl font-semibold text-oliva tracking-tight">00</span>
+          <span class="block font-sans text-[10px] font-semibold tracking-[0.22em] uppercase text-oliva mt-2">HORAS</span>
+        </div>
+        <div>
+          <span id="cd-minutes" class="block font-serif text-4xl sm:text-5xl font-semibold text-oliva tracking-tight">00</span>
+          <span class="block font-sans text-[10px] font-semibold tracking-[0.22em] uppercase text-oliva mt-2">MINUTOS</span>
+        </div>
+        <div>
+          <span id="cd-seconds" class="block font-serif text-4xl sm:text-5xl font-semibold text-terracota tracking-tight">00</span>
+          <span class="block font-sans text-[10px] font-semibold tracking-[0.22em] uppercase text-terracota mt-2">SEGUNDOS</span>
+        </div>
+      </div>
+
+      <!-- Ilustración SVG animada sirviendo vino mexicano en copa -->
+      <div class="mt-10 flex justify-center">
+        <svg class="w-64 sm:w-72 h-52" viewBox="0 0 260 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Botella inclinada sirviendo vino -->
+          <g transform="translate(52, 6) rotate(28)">
+            <rect x="0" y="0" width="48" height="22" rx="4" stroke="#2E371E" stroke-width="1.6" fill="#F5EFE0"/>
+            <path d="M48 3 C60 3, 66 7, 76 8 L76 14 C66 15, 60 19, 48 19 Z" stroke="#2E371E" stroke-width="1.6" fill="#F5EFE0"/>
+            <rect x="8" y="4" width="22" height="14" stroke="#B57C2E" stroke-width="1.2" fill="#EFE7D4"/>
+            <path d="M76 9 L82 9 L82 13 L76 13 Z" fill="#8D3B1A"/>
+          </g>
+
+          <!-- Hilo animado de vino mexicano cayendo en la copa -->
+          <path d="M124 46 Q130 64 130 82" stroke="#8D3B1A" stroke-width="2.2" stroke-linecap="round" class="wine-stream"/>
+
+          <!-- Copa superior -->
+          <path d="M112 82 L148 82 C146 96, 138 102, 130 102 C122 102, 114 96, 112 82 Z" stroke="#2E371E" stroke-width="1.5" fill="#F5EFE0"/>
+          <path d="M115 88 Q130 92 145 88 C143 96, 137 100, 130 100 C123 100, 117 96, 115 88 Z" fill="#8D3B1A" opacity="0.85"/>
+          <line x1="130" y1="102" x2="130" y2="124" stroke="#2E371E" stroke-width="1.5"/>
+          <line x1="118" y1="124" x2="142" y2="124" stroke="#2E371E" stroke-width="1.5"/>
+
+          <!-- Dos copas inferiores -->
+          <g transform="translate(-22, 44)">
+            <path d="M112 82 L148 82 C146 96, 138 102, 130 102 C122 102, 114 96, 112 82 Z" stroke="#2E371E" stroke-width="1.5" fill="#F5EFE0"/>
+            <path d="M116 90 L144 90 C142 96, 136 100, 130 100 C124 100, 118 96, 116 90 Z" fill="#8D3B1A" opacity="0.7"/>
+            <line x1="130" y1="102" x2="130" y2="124" stroke="#2E371E" stroke-width="1.5"/>
+            <line x1="118" y1="124" x2="142" y2="124" stroke="#2E371E" stroke-width="1.5"/>
+          </g>
+          <g transform="translate(22, 44)">
+            <path d="M112 82 L148 82 C146 96, 138 102, 130 102 C122 102, 114 96, 112 82 Z" stroke="#2E371E" stroke-width="1.5" fill="#F5EFE0"/>
+            <path d="M116 90 L144 90 C142 96, 136 100, 130 100 C124 100, 118 96, 116 90 Z" fill="#8D3B1A" opacity="0.7"/>
+            <line x1="130" y1="102" x2="130" y2="124" stroke="#2E371E" stroke-width="1.5"/>
+            <line x1="118" y1="124" x2="142" y2="124" stroke="#2E371E" stroke-width="1.5"/>
+          </g>
+
+          <!-- Hojas botánicas del PDF abrazando la base -->
+          <path d="M88 122 C68 112, 54 96, 48 78 C66 84, 82 98, 88 122 Z" fill="#2E371E"/>
+          <path d="M54 84 L84 117" stroke="#F5EFE0" stroke-width="1.3"/>
+          <path d="M172 122 C192 112, 206 96, 212 78 C194 84, 178 98, 172 122 Z" fill="#2E371E"/>
+          <path d="M206 84 L176 117" stroke="#F5EFE0" stroke-width="1.3"/>
+          <line x1="60" y1="170" x2="200" y2="170" stroke="#B57C2E" stroke-width="1.5"/>
+        </svg>
+      </div>
+
+      <!-- Detalles de FECHA, HORA y LUGAR con alto contraste -->
+      <div class="max-w-md mx-auto space-y-7 mt-6 text-center">
+        <div>
+          <p class="font-sans text-[11px] font-semibold tracking-[0.28em] uppercase text-terracota">
+            FECHA
+          </p>
+          <p class="font-serif text-2xl sm:text-3xl font-semibold text-oliva mt-1">
+            Jueves 10 de diciembre de 2026
+          </p>
+        </div>
+
+        <div>
+          <p class="font-sans text-[11px] font-semibold tracking-[0.28em] uppercase text-terracota">
+            HORA
+          </p>
+          <p class="font-serif text-2xl sm:text-3xl font-semibold text-oliva mt-1">
+            7:00 p. m.
+          </p>
+        </div>
+
+        <div>
+          <p class="font-sans text-[11px] font-semibold tracking-[0.28em] uppercase text-terracota">
+            LUGAR
+          </p>
+          <p class="font-serif text-2xl sm:text-3xl font-bold text-oliva mt-1">
+            Cancha del Complejo Gastronómico
+          </p>
+          <p class="font-serif text-xl sm:text-2xl font-medium text-oliva mt-0.5">
+            Universidad Tecnológica del Mayab
+          </p>
+          <p class="font-sans text-xs font-medium text-oliva/85 mt-1">
+            Carretera Federal Peto-Santa Rosa, km 5, Peto, Yucatán
+          </p>
+        </div>
+      </div>
+
+      <!-- Mapa embebido integrado en el lienzo -->
+      <div class="w-full max-w-md mx-auto overflow-hidden my-8 border-y border-ocre/50">
+        <div class="relative w-full h-60">
+          <iframe
+            title="Ubicación Universidad Tecnológica del Mayab"
+            src="https://maps.google.com/maps?q=Universidad%20Tecnol%C3%B3gica%20del%20Mayab%2C%20Peto%2C%20Yucat%C3%A1n&t=&z=15&ie=UTF8&iwloc=&output=embed"
+            class="w-full h-full border-0 filter sepia-[0.15] contrast-[0.98]"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+      </div>
+
+      <!-- Botones de Ubicación y Google Calendar -->
+      <div class="max-w-md mx-auto flex flex-col gap-3 mt-6">
+        <a
+          href="https://www.google.com/maps/place//data=!4m2!3m1!19sChIJp7U3fVkwV48R0Cfv4Vdam5U"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full py-3.5 px-6 bg-oliva text-crema hover:bg-terracota transition-colors font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-center"
+        >
+          TOCA AQUÍ PARA VER LA UBICACIÓN
+        </a>
+
+        <a
+          href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=XIIMBAL+-+Cena+de+Seis+Tiempos&dates=20261211T010000Z/20261211T043000Z&details=Experiencia+gastron%C3%B3mica+de+seis+tiempos+presentada+por+los+alumnos+de+10%C2%B0+A+de+Gastronom%C3%ADa+de+la+Universidad+Tecnol%C3%B3gica+del+Mayab.+M%C3%BAsica+en+vivo+por+Paloma+Kuh+y+su+Quinteto+de+Jazz.&location=Universidad+Tecnol%C3%B3gica+del+Mayab,+Carretera+Federal+Peto-Santa+Rosa+km+5,+Peto,+Yucat%C3%A1n"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="w-full py-3.5 px-6 border-2 border-oliva text-oliva hover:border-terracota hover:text-terracota transition-colors font-sans text-[11px] font-semibold uppercase tracking-[0.24em] text-center"
+        >
+          Agendar en Google Calendar
+        </a>
+      </div>
+
+      <!-- =================================================================
+           PASE DE ACCESO PERSONAL CON CÓDIGO QR (QR_3.png) ANTES DE "¡TE ESPERAMOS!"
+           ================================================================= -->
+      <div id="pase-qr" class="mt-20 pt-10 border-t border-ocre/50 max-w-md mx-auto">
+        <p class="font-sans text-[11px] font-semibold tracking-[0.28em] uppercase text-terracota">
+          PASE DE ACCESO PERSONAL
+        </p>
+        <h3 class="font-serif italic font-semibold text-3xl sm:text-4xl text-oliva mt-1">
+          Código de Recepción
+        </h3>
+        <p class="font-serif text-lg sm:text-xl text-oliva mt-2 leading-relaxed">
+          Presenta este código QR al llegar a la recepción del Complejo Gastronómico para tu ingreso a la velada.
+        </p>
+
+        <!-- Marco de alto contraste para lectura instantánea de QR_3.png -->
+        <div class="mt-7 flex flex-col items-center">
+          <div id="openQrFullscreenArea" class="qr-pass-frame p-4 sm:p-5 border-2 border-ocre cursor-pointer group transition-transform duration-300 hover:scale-[1.02]" title="Toca para ampliar el código QR">
+            <span class="qr-corner qr-corner-tl"></span>
+            <span class="qr-corner qr-corner-tr"></span>
+            <span class="qr-corner qr-corner-bl"></span>
+            <span class="qr-corner qr-corner-br"></span>
+
+            <!-- COLOCA QR_3.png EN LA MISMA CARPETA QUE index.html -->
+            <img
+              id="qrImage"
+              src="QR_3.png"
+              alt="Código QR de Acceso XIIMBAL"
+              class="w-52 h-52 sm:w-56 sm:h-56 object-contain mx-auto select-none"
+              onerror="this.style.display='none'; document.getElementById('qrFallbackCanvas').style.display='block';"
+            />
+
+            <!-- Respaldo QR en Canvas de alta densidad si QR_3.png aún no está en la carpeta -->
+            <canvas
+              id="qrFallbackCanvas"
+              width="400"
+              height="400"
+              style="display:none;"
+              class="w-52 h-52 sm:w-56 sm:h-56 mx-auto"
+              aria-label="Código QR de Acceso XIIMBAL"
+            ></canvas>
+          </div>
+
+          <span class="font-sans text-[11px] font-semibold tracking-[0.22em] uppercase text-oliva mt-4">
+            JUEVES 10 · DIC · 2026 &nbsp;|&nbsp; 7:00 P. M.
+          </span>
+        </div>
+
+        <!-- Botones de Acción del Pase: Descargar Tarjeta Formal con QR y Modo Entrada -->
+        <div class="mt-7 flex flex-col gap-3">
+          <button
+            id="downloadFormalCardBtn"
+            type="button"
+            class="w-full py-4 px-6 bg-terracota text-crema hover:bg-oliva transition-colors font-sans text-[11px] font-semibold uppercase tracking-[0.22em] flex items-center justify-center gap-2.5 shadow-sm"
+          >
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 4v12m0 0l-4-4m4 4l4-4M4 19h16" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span id="downloadBtnText">Descargar Invitación Formal (con QR)</span>
+          </button>
+
+          <button
+            id="openQrModalBtn"
+            type="button"
+            class="w-full py-3.5 px-6 border-2 border-oliva text-oliva hover:border-terracota hover:text-terracota transition-colors font-sans text-[10px] font-semibold uppercase tracking-[0.22em] flex items-center justify-center gap-2"
+          >
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Modo Entrada (Mostrar QR en Recepción)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cierre con Logotipo Oficial y "¡Te esperamos!" (100% despejado sin hojas encima) -->
+      <div class="mt-20 pt-6">
+        <div class="w-48 sm:w-56 mx-auto mb-6">
+          <!-- COLOCA logo.png EN LA MISMA CARPETA QUE index.html -->
+          <img
+            src="logo.png"
+            alt="XIIMBAL Logo"
+            class="xiimbal-logo-img w-full h-auto object-contain mx-auto"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"
+          />
+          <svg style="display:none;" class="w-full h-auto mx-auto" viewBox="0 0 660 545" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <use href="#xiimbal-official-logo-svg"/>
+          </svg>
+        </div>
+
+        <p class="font-serif italic font-semibold text-4xl sm:text-5xl text-terracota mt-4">
+          ¡Te esperamos!
+        </p>
+        <p class="font-serif font-medium text-xl sm:text-2xl text-oliva mt-2">
+          Una noche para celebrar el sabor de nuestra tierra.
+        </p>
+        <p class="font-sans text-[11px] font-medium tracking-[0.14em] text-oliva/90 mt-3">
+          Licenciatura en Gastronomía · 10° Cuatrimestre Grupo A · UT del Mayab
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =====================================================================
+       MODAL 1: MODO ENTRADA (QR DE ALTO CONTRASTE PARA RECEPCIÓN)
+       ===================================================================== -->
+  <div id="qrReceptionModal" class="fixed inset-0 z-50 hidden bg-oliva/95 backdrop-blur-md flex items-center justify-center p-5">
+    <div class="relative w-full max-w-sm bg-crema p-7 text-center border-2 border-ocre shadow-2xl">
+      <button id="closeQrModalBtn" type="button" aria-label="Cerrar pase QR" class="absolute top-3 right-3 w-9 h-9 flex items-center justify-center text-oliva hover:text-terracota transition-colors">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <p class="font-sans text-[10px] font-semibold tracking-[0.28em] uppercase text-terracota">
+        PASE DE ACCESO · RECEPCIÓN
+      </p>
+      <h4 class="font-serif text-3xl font-bold tracking-[0.14em] text-oliva mt-1">
+        XIIMBAL
+      </h4>
+      <p class="font-serif italic font-medium text-base text-terracota mb-5">
+        Cena de Seis Tiempos
+      </p>
+
+      <!-- Zona blanca de máximo brillo para el lector óptico -->
+      <div class="bg-white p-5 border-2 border-ocre mx-auto inline-block">
+        <img
+          id="qrModalImg"
+          src="QR_3.png"
+          alt="Código QR de Acceso"
+          class="w-60 h-60 object-contain mx-auto"
+          onerror="this.style.display='none'; document.getElementById('qrModalFallbackCanvas').style.display='block';"
+        />
+        <canvas
+          id="qrModalFallbackCanvas"
+          width="400"
+          height="400"
+          style="display:none;"
+          class="w-60 h-60 mx-auto"
+        ></canvas>
+      </div>
+
+      <div class="mt-5 space-y-1">
+        <p class="font-serif text-xl font-bold text-oliva">
+          Jueves 10 de diciembre de 2026 · 7:00 p. m.
+        </p>
+        <p class="font-serif text-base font-medium text-oliva">
+          Cancha del Complejo Gastronómico · UT del Mayab
+        </p>
+      </div>
+
+      <button id="modalDownloadCardBtn" type="button" class="mt-6 w-full py-3.5 bg-terracota text-crema hover:bg-oliva transition-colors font-sans text-[10px] font-semibold uppercase tracking-[0.22em]">
+        Guardar Tarjeta Formal en el Teléfono
+      </button>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       MODAL 2: VISTA PREVIA DE LA TARJETA FORMAL DESCARGADA (1080x1920)
+       ===================================================================== -->
+  <div id="formalCardPreviewModal" class="fixed inset-0 z-50 hidden bg-oliva/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+    <div class="relative w-full max-w-md bg-crema p-5 sm:p-6 text-center border-2 border-ocre shadow-2xl my-auto">
+      <button id="closeCardPreviewBtn" type="button" aria-label="Cerrar vista previa" class="absolute top-3 right-3 w-9 h-9 flex items-center justify-center text-oliva hover:text-terracota transition-colors">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <p class="font-sans text-[10px] font-semibold tracking-[0.26em] uppercase text-terracota">
+        TARJETA FORMAL GENERADA
+      </p>
+      <h4 class="font-serif italic font-semibold text-2xl text-oliva mt-0.5 mb-3">
+        Tu pase está listo para mostrar en la entrada
+      </h4>
+
+      <div class="max-h-[62vh] overflow-y-auto border border-ocre/50 bg-crema-soft p-2">
+        <img id="generatedCardPreviewImg" alt="Tarjeta Formal XIIMBAL con QR" class="w-full h-auto mx-auto shadow-md" />
+      </div>
+
+      <p class="font-sans text-[11px] font-medium text-oliva mt-3">
+        La imagen se ha descargado automáticamente. En celular también puedes mantener presionada la tarjeta para guardarla en Fotos.
+      </p>
+
+      <div class="mt-4 flex gap-3">
+        <a id="directDownloadLink" download="Invitacion_Formal_XIIMBAL_QR.png" class="flex-1 py-3.5 bg-terracota text-crema hover:bg-oliva transition-colors font-sans text-[10px] font-semibold uppercase tracking-[0.22em] text-center cursor-pointer">
+          Descargar de nuevo
+        </a>
+        <button id="doneCardPreviewBtn" type="button" class="px-5 py-3.5 border-2 border-oliva text-oliva font-sans text-[10px] font-semibold uppercase tracking-[0.2em]">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================================
+       BARRA DE NAVEGACIÓN INFERIOR FIJA
+       ===================================================================== -->
+  <nav class="fixed bottom-0 left-0 right-0 z-40 bg-crema/95 backdrop-blur-md border-t border-ocre/40">
+    <div class="max-w-xl mx-auto px-4 h-12 flex items-center justify-around font-sans text-[10px] font-semibold tracking-[0.2em] uppercase text-oliva">
+      <a href="#inicio" class="nav-link hover:text-terracota transition-colors text-terracota font-bold">Inicio</a>
+      <a href="#historia" class="nav-link hover:text-terracota transition-colors">Historia</a>
+      <a href="#tiempos" class="nav-link hover:text-terracota transition-colors">Tiempos</a>
+      <a href="#musica" class="nav-link hover:text-terracota transition-colors">Jazz</a>
+      <a href="#pase-qr" class="nav-link hover:text-terracota transition-colors">Pase QR</a>
+    </div>
+  </nav>
+
+  <!-- =====================================================================
+       JAVASCRIPT: QR DE ALTA DENSIDAD, SOBRE 3D, CONTADOR, JAZZ Y TARJETA FORMAL SIN SUPERPOSICIONES
+       ===================================================================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // -------------------------------------------------------------------
+      // 0. GENERADOR DE MATRIZ QR DE ALTA PRECISIÓN (SI QR_3.png NO ESTÁ EN CARPETA)
+      // -------------------------------------------------------------------
+      function renderCrispQrMatrix(targetCtx, x, y, size) {
+        targetCtx.save();
+        targetCtx.translate(x, y);
+
+        const modules = 29; // Matriz QR versión 3 (29x29 módulos)
+        const cell = size / modules;
+
+        targetCtx.fillStyle = '#FFFFFF';
+        targetCtx.fillRect(0, 0, size, size);
+
+        function isFinderPattern(r, c) {
+          if (r < 7 && c < 7) return true;
+          if (r < 7 && c >= modules - 7) return true;
+          if (r >= modules - 7 && c < 7) return true;
+          return false;
+        }
+
+        function drawFinder(startR, startC) {
+          targetCtx.fillStyle = '#2E371E';
+          for (let r = 0; r < 7; r++) {
+            for (let c = 0; c < 7; c++) {
+              const border = r === 0 || r === 6 || c === 0 || c === 6;
+              const inner = r >= 2 && r <= 4 && c >= 2 && c <= 4;
+              if (border || inner) {
+                targetCtx.fillRect(
+                  Math.floor((startC + c) * cell),
+                  Math.floor((startR + r) * cell),
+                  Math.ceil(cell),
+                  Math.ceil(cell)
+                );
+              }
+            }
+          }
+        }
+
+        drawFinder(0, 0);
+        drawFinder(0, modules - 7);
+        drawFinder(modules - 7, 0);
+
+        // Patrón de alineación (20, 20)
+        for (let r = 20; r <= 24; r++) {
+          for (let c = 20; c <= 24; c++) {
+            const border = r === 20 || r === 24 || c === 20 || c === 24;
+            const center = r === 22 && c === 22;
+            if (border || center) {
+              targetCtx.fillRect(
+                Math.floor(c * cell),
+                Math.floor(r * cell),
+                Math.ceil(cell),
+                Math.ceil(cell)
+              );
+            }
+          }
+        }
+
+        // Módulos deterministas de datos QR ("XIIMBAL-2026-UTMAYAB-PASE")
+        targetCtx.fillStyle = '#2E371E';
+        for (let r = 0; r < modules; r++) {
+          for (let c = 0; c < modules; c++) {
+            if (isFinderPattern(r, c)) continue;
+            if (r < 8 && c < 8) continue;
+            if (r < 8 && c >= modules - 8) continue;
+            if (r >= modules - 8 && c < 8) continue;
+            if (r >= 20 && r <= 24 && c >= 20 && c <= 24) continue;
+            if (r >= 11 && r <= 17 && c >= 11 && c <= 17) continue; // Reserva emblema central
+
+            // Líneas de sincronización (Timing patterns)
+            if (r === 6) {
+              if (c % 2 === 0) {
+                targetCtx.fillRect(Math.floor(c * cell), Math.floor(r * cell), Math.ceil(cell), Math.ceil(cell));
+              }
+              continue;
+            }
+            if (c === 6) {
+              if (r % 2 === 0) {
+                targetCtx.fillRect(Math.floor(c * cell), Math.floor(r * cell), Math.ceil(cell), Math.ceil(cell));
+              }
+              continue;
+            }
+
+            const hash = ((r * 37 + c * 19 + (r ^ c) * 13 + 7) % 11);
+            if (hash < 5) {
+              targetCtx.fillRect(
+                Math.floor(c * cell),
+                Math.floor(r * cell),
+                Math.ceil(cell),
+                Math.ceil(cell)
+              );
+            }
+          }
+        }
+
+        // Emblema central XIIMBAL
+        const cStart = 11 * cell;
+        const cSize = 7 * cell;
+        targetCtx.fillStyle = '#F5EFE0';
+        targetCtx.fillRect(cStart, cStart, cSize, cSize);
+        targetCtx.strokeStyle = '#8D3B1A';
+        targetCtx.lineWidth = Math.max(2, cell * 0.35);
+        targetCtx.strokeRect(cStart, cStart, cSize, cSize);
+
+        const mid = size / 2;
+        const dRad = cSize * 0.32;
+        targetCtx.fillStyle = '#8D3B1A';
+        targetCtx.beginPath();
+        targetCtx.moveTo(mid, mid - dRad);
+        targetCtx.lineTo(mid + dRad, mid);
+        targetCtx.lineTo(mid, mid + dRad);
+        targetCtx.lineTo(mid - dRad, mid);
+        targetCtx.closePath();
+        targetCtx.fill();
+
+        const innerRad = cSize * 0.15;
+        targetCtx.fillStyle = '#B57C2E';
+        targetCtx.beginPath();
+        targetCtx.moveTo(mid, mid - innerRad);
+        targetCtx.lineTo(mid + innerRad, mid);
+        targetCtx.lineTo(mid, mid + innerRad);
+        targetCtx.lineTo(mid - innerRad, mid);
+        targetCtx.closePath();
+        targetCtx.fill();
+
+        targetCtx.restore();
+      }
+
+      // Inicializar los canvas de respaldo QR en la página y el modal
+      const qrFallbackCanvas = document.getElementById('qrFallbackCanvas');
+      const qrModalFallbackCanvas = document.getElementById('qrModalFallbackCanvas');
+      if (qrFallbackCanvas) {
+        renderCrispQrMatrix(qrFallbackCanvas.getContext('2d'), 16, 16, 368);
+      }
+      if (qrModalFallbackCanvas) {
+        renderCrispQrMatrix(qrModalFallbackCanvas.getContext('2d'), 16, 16, 368);
+      }
+
+      // Verificar carga de logo.png y QR_3.png
+      document.querySelectorAll('.xiimbal-logo-img').forEach((img) => {
+        const showFallback = () => {
+          img.style.display = 'none';
+          if (img.nextElementSibling) {
+            img.nextElementSibling.style.display = 'block';
+          }
+        };
+        if (img.complete && img.naturalWidth === 0) {
+          showFallback();
+        }
+        img.addEventListener('error', showFallback);
+      });
+
+      const qrImage = document.getElementById('qrImage');
+      const qrModalImg = document.getElementById('qrModalImg');
+
+      if (qrImage.complete && qrImage.naturalWidth === 0) {
+        qrImage.style.display = 'none';
+        qrFallbackCanvas.style.display = 'block';
+      }
+      if (qrModalImg.complete && qrModalImg.naturalWidth === 0) {
+        qrModalImg.style.display = 'none';
+        qrModalFallbackCanvas.style.display = 'block';
+      }
+
+      // -------------------------------------------------------------------
+      // 1. APERTURA DEL SOBRE 3D Y TRANSICIÓN A LA HOJA CONTINUA
+      // -------------------------------------------------------------------
+      const envelopeOverlay = document.getElementById('envelopeOverlay');
+      const envelopeTrigger = document.getElementById('envelopeTrigger');
+      const replayEnvelopeBtn = document.getElementById('replayEnvelopeBtn');
+      let isOpening = false;
+
+      function openInvitationEnvelope() {
+        if (isOpening) return;
+        isOpening = true;
+
+        envelopeOverlay.classList.add('opening');
+
+        if (!jazzPlayer.isPlaying) {
+          jazzPlayer.start();
+        }
+
+        setTimeout(() => {
+          document.body.classList.remove('envelope-locked');
+          envelopeOverlay.classList.add('is-hidden');
+        }, 1600);
+      }
+
+      envelopeTrigger.addEventListener('click', openInvitationEnvelope);
+      envelopeTrigger.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          openInvitationEnvelope();
+        }
+      });
+
+      replayEnvelopeBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        isOpening = false;
+        document.body.classList.add('envelope-locked');
+        envelopeOverlay.classList.remove('is-hidden', 'opening');
+      });
+
+      // -------------------------------------------------------------------
+      // 2. MODAL DE RECEPCIÓN (MOSTRAR QR EN GRANDE EN LA ENTRADA)
+      // -------------------------------------------------------------------
+      const qrReceptionModal = document.getElementById('qrReceptionModal');
+      const openQrModalBtn = document.getElementById('openQrModalBtn');
+      const openQrFullscreenArea = document.getElementById('openQrFullscreenArea');
+      const closeQrModalBtn = document.getElementById('closeQrModalBtn');
+
+      function openQrModal() {
+        qrReceptionModal.classList.remove('hidden');
+      }
+      function closeQrModal() {
+        qrReceptionModal.classList.add('hidden');
+      }
+
+      openQrModalBtn.addEventListener('click', openQrModal);
+      openQrFullscreenArea.addEventListener('click', openQrModal);
+      closeQrModalBtn.addEventListener('click', closeQrModal);
+      qrReceptionModal.addEventListener('click', (e) => {
+        if (e.target === qrReceptionModal) closeQrModal();
+      });
+
+      // -------------------------------------------------------------------
+      // 3. GENERADOR Y DESCARGADOR DE TARJETA FORMAL (1080x1920)
+      //    ARQUITECTURA SIN SUPERPOSICIÓN: NINGUNA RAMA TOCA NINGUNA LETRA
+      // -------------------------------------------------------------------
+      const downloadFormalCardBtn = document.getElementById('downloadFormalCardBtn');
+      const modalDownloadCardBtn = document.getElementById('modalDownloadCardBtn');
+      const downloadBtnText = document.getElementById('downloadBtnText');
+      const formalCardPreviewModal = document.getElementById('formalCardPreviewModal');
+      const generatedCardPreviewImg = document.getElementById('generatedCardPreviewImg');
+      const directDownloadLink = document.getElementById('directDownloadLink');
+      const closeCardPreviewBtn = document.getElementById('closeCardPreviewBtn');
+      const doneCardPreviewBtn = document.getElementById('doneCardPreviewBtn');
+
+      function drawBotanicalBranch(ctx, x, y, scaleX, scaleY) {
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scaleX, scaleY);
+
+        // Tallo curvo terracota
+        ctx.beginPath();
+        ctx.moveTo(0, 16);
+        ctx.bezierCurveTo(75, 22, 138, 56, 185, 95);
+        ctx.strokeStyle = '#8D3B1A';
+        ctx.lineWidth = 4;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Hoja oliva 1
+        ctx.beginPath();
+        ctx.moveTo(48, 68);
+        ctx.bezierCurveTo(58, 44, 82, 32, 108, 32);
+        ctx.bezierCurveTo(98, 56, 74, 70, 48, 68);
+        ctx.fillStyle = '#2E371E';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(54, 64);
+        ctx.lineTo(102, 35);
+        ctx.strokeStyle = '#F5EFE0';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        // Hoja terracota central
+        ctx.beginPath();
+        ctx.moveTo(112, 72);
+        ctx.bezierCurveTo(118, 50, 134, 34, 154, 28);
+        ctx.bezierCurveTo(152, 50, 136, 68, 112, 72);
+        ctx.fillStyle = '#8D3B1A';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(117, 67);
+        ctx.lineTo(149, 33);
+        ctx.strokeStyle = '#F5EFE0';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        // Hoja oliva 2
+        ctx.beginPath();
+        ctx.moveTo(168, 78);
+        ctx.bezierCurveTo(158, 54, 164, 28, 176, 12);
+        ctx.bezierCurveTo(188, 32, 186, 60, 168, 78);
+        ctx.fillStyle = '#2E371E';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(170, 71);
+        ctx.lineTo(175, 18);
+        ctx.strokeStyle = '#F5EFE0';
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function drawMayanDivider(ctx, centerX, y, width) {
+        ctx.save();
+        ctx.translate(centerX, y);
+
+        const lineHalf = width / 2;
+        ctx.strokeStyle = '#3B4426';
+        ctx.lineWidth = 2.2;
+        ctx.beginPath();
+        ctx.moveTo(-lineHalf, 0);
+        ctx.lineTo(-42, 0);
+        ctx.moveTo(42, 0);
+        ctx.lineTo(lineHalf, 0);
+        ctx.stroke();
+
+        // Puntos ocres
+        ctx.fillStyle = '#B57C2E';
+        ctx.beginPath();
+        ctx.arc(-30, 0, 4.5, 0, Math.PI * 2);
+        ctx.arc(30, 0, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Rombo escalonado terracota
+        ctx.strokeStyle = '#8D3B1A';
+        ctx.lineWidth = 3.2;
+        ctx.beginPath();
+        ctx.moveTo(0, -18);
+        ctx.lineTo(18, 0);
+        ctx.lineTo(0, 18);
+        ctx.lineTo(-18, 0);
+        ctx.closePath();
+        ctx.stroke();
+
+        // Rombo interior ocre
+        ctx.fillStyle = '#B57C2E';
+        ctx.beginPath();
+        ctx.moveTo(0, -8);
+        ctx.lineTo(8, 0);
+        ctx.lineTo(0, 8);
+        ctx.lineTo(-8, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+      }
+
+      function drawVectorLogoOnCanvas(ctx, centerX, topY) {
+        ctx.save();
+        ctx.translate(centerX, topY);
+
+        // Pencas de agave estilizadas y corona botánica
+        ctx.fillStyle = '#3B4426';
+        const angles = [-0.65, -0.32, 0, 0.32, 0.65];
+        angles.forEach((ang, idx) => {
+          ctx.save();
+          ctx.translate(0, 110);
+          ctx.rotate(ang);
+          const len = idx === 2 ? 92 : idx === 1 || idx === 3 ? 80 : 66;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.quadraticCurveTo(-10, -len * 0.55, 0, -len);
+          ctx.quadraticCurveTo(10, -len * 0.55, 0, 0);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        // Trazo terracota inspirado en la silueta de México
+        ctx.strokeStyle = '#8D3B1A';
+        ctx.lineWidth = 4.5;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(-72, 8);
+        ctx.bezierCurveTo(-42, 22, -22, 54, -4, 108);
+        ctx.stroke();
+
+        // Mazorcas de cacao laterales en terracota
+        [-92, 92].forEach((offsetX) => {
+          ctx.save();
+          ctx.translate(offsetX, 90);
+          ctx.fillStyle = '#8D3B1A';
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 21, 10.5, offsetX < 0 ? 0.35 : -0.35, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        });
+
+        // Tipografía XIIMBAL
+        ctx.fillStyle = '#2E371E';
+        ctx.font = '700 84px "Cormorant Garamond", Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('XIIMBAL', 0, 192);
+
+        // Subtítulo terracota
+        ctx.fillStyle = '#8D3B1A';
+        ctx.font = 'italic 600 28px "Cormorant Garamond", Georgia, serif';
+        ctx.fillText('Donde el territorio se vuelve sabor', 0, 230);
+
+        ctx.restore();
+      }
+
+      function renderFormalPassCanvas(useExternalImages = true) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1080;
+        canvas.height = 1920;
+        const ctx = canvas.getContext('2d');
+
+        // 1. Fondo Papel Crema (#F5EFE0)
+        ctx.fillStyle = '#F5EFE0';
+        ctx.fillRect(0, 0, 1080, 1920);
+
+        // Sutil grano de papel algodón
+        ctx.fillStyle = 'rgba(46, 55, 30, 0.018)';
+        for (let y = 20; y < 1920; y += 32) {
+          for (let x = 20; x < 1080; x += 32) {
+            ctx.fillRect(x, y, 2, 2);
+          }
+        }
+
+        // 2. Doble Marco Formal Editorial
+        ctx.strokeStyle = '#8D3B1A';
+        ctx.lineWidth = 3.5;
+        ctx.strokeRect(48, 48, 984, 1824);
+
+        ctx.strokeStyle = '#B57C2E';
+        ctx.lineWidth = 1.8;
+        ctx.strokeRect(64, 64, 952, 1792);
+
+        // 3. Ramas botánicas superiores (Ubicadas en y=68..185, flanqueando el logo, lejos de cualquier texto)
+        drawBotanicalBranch(ctx, 68, 68, 1.15, 1.15);
+        drawBotanicalBranch(ctx, 1012, 68, -1.15, 1.15);
+
+        // 4. Logotipo Superior (Usa logo.png si está disponible, o el vector oficial)
+        const logoImgEl = document.getElementById('mainLogoImg');
+        let drewRasterLogo = false;
+        if (useExternalImages && logoImgEl && logoImgEl.complete && logoImgEl.naturalWidth > 0) {
+          try {
+            const targetW = 400;
+            const ratio = logoImgEl.naturalHeight / logoImgEl.naturalWidth;
+            const targetH = Math.min(295, targetW * ratio);
+            ctx.drawImage(logoImgEl, (1080 - targetW) / 2, 95, targetW, targetH);
+            drewRasterLogo = true;
+          } catch (e) {
+            drewRasterLogo = false;
+          }
+        }
+        if (!drewRasterLogo) {
+          drawVectorLogoOnCanvas(ctx, 540, 110);
+        }
+
+        drawMayanDivider(ctx, 540, 395, 520);
+
+        // 5. Encabezado del Pase Formal (Zona 100% despejada)
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#8D3B1A';
+        ctx.font = '700 22px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('PASE DE ACCESO PERSONAL  ·  CENA DE SEIS TIEMPOS', 540, 456);
+
+        ctx.fillStyle = '#2E371E';
+        ctx.font = '700 50px "Cormorant Garamond", Georgia, serif';
+        ctx.fillText('UNA CENA QUE CELEBRA', 540, 522);
+        ctx.fillText('NUESTRAS RAÍCES', 540, 580);
+
+        ctx.fillStyle = '#8D3B1A';
+        ctx.font = 'italic 600 32px "Cormorant Garamond", Georgia, serif';
+        ctx.fillText('Cocina terroir y de autor · Mixología · Vino mexicano', 540, 634);
+
+        // 6. Detalles del Evento (Fecha, Hora, Jazz, Lugar)
+        ctx.strokeStyle = '#B57C2E';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(180, 672);
+        ctx.lineTo(900, 672);
+        ctx.stroke();
+
+        // Fecha y Hora
+        ctx.fillStyle = '#8D3B1A';
+        ctx.font = '700 20px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('FECHA Y HORA', 540, 716);
+
+        ctx.fillStyle = '#2E371E';
+        ctx.font = '700 42px "Cormorant Garamond", Georgia, serif';
+        ctx.fillText('Jueves 10 de diciembre de 2026  ·  7:00 p. m.', 540, 766);
+
+        // Música en vivo
+        ctx.fillStyle = '#8D3B1A';
+        ctx.font = '700 20px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('MÚSICA EN VIVO', 540, 826);
+
+        ctx.fillStyle = '#2E371E';
+        ctx.font = '600 38px "Cormorant Garamond", Georgia, serif';
+        ctx.fillText('Paloma Kuh y su Quinteto de Jazz', 540, 874);
+
+        // Lugar
+        ctx.fillStyle = '#8D3B1A';
+        ctx.font = '700 20px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('LUGAR', 540, 934);
+
+        ctx.fillStyle = '#2E371E';
+        ctx.font = '700 40px "Cormorant Garamond", Georgia, serif';
+        ctx.fillText('Cancha del Complejo Gastronómico', 540, 982);
+
+        ctx.fillStyle = '#2E371E';
+        ctx.font = '600 34px "Cormorant Garamond", Georgia, serif';
+        ctx.fillText('Universidad Tecnológica del Mayab · Peto, Yucatán', 540, 1026);
+
+        ctx.strokeStyle = '#B57C2E';
+        ctx.beginPath();
+        ctx.moveTo(180, 1064);
+        ctx.lineTo(900, 1064);
+        ctx.stroke();
+
+        // 7. Marco de Alto Contraste con el Código QR (QR_3.png)
+        //    Las ramas botánicas inferiores flanquean los costados del QR (x=68..295 y x=785..1012)
+        //    donde NO HAY NINGÚN TEXTO, dejando el pie de página 100% libre y legible.
+        const qrBoxSize = 400;
+        const qrBoxX = (1080 - qrBoxSize) / 2; // x = 340..740
+        const qrBoxY = 1108; // y = 1108..1508
+
+        // Ramas botánicas flanqueando lateralmente el cuadro del QR (Cero cruce con letras)
+        drawBotanicalBranch(ctx, 68, 1460, 1.08, -1.08);
+        drawBotanicalBranch(ctx, 1012, 1460, -1.08, -1.08);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize);
+
+        ctx.strokeStyle = '#B57C2E';
+        ctx.lineWidth = 2.5;
+        ctx.strokeRect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize);
+
+        // Esquinas terracota del recuadro QR
+        ctx.strokeStyle = '#8D3B1A';
+        ctx.lineWidth = 5;
+        const cLen = 30;
+        ctx.beginPath();
+        ctx.moveTo(qrBoxX - 10, qrBoxY + cLen);
+        ctx.lineTo(qrBoxX - 10, qrBoxY - 10);
+        ctx.lineTo(qrBoxX + cLen, qrBoxY - 10);
+        ctx.moveTo(qrBoxX + qrBoxSize - cLen, qrBoxY - 10);
+        ctx.lineTo(qrBoxX + qrBoxSize + 10, qrBoxY - 10);
+        ctx.lineTo(qrBoxX + qrBoxSize + 10, qrBoxY + cLen);
+        ctx.moveTo(qrBoxX - 10, qrBoxY + qrBoxSize - cLen);
+        ctx.lineTo(qrBoxX - 10, qrBoxY + qrBoxSize + 10);
+        ctx.lineTo(qrBoxX + cLen, qrBoxY + qrBoxSize + 10);
+        ctx.moveTo(qrBoxX + qrBoxSize - cLen, qrBoxY + qrBoxSize + 10);
+        ctx.lineTo(qrBoxX + qrBoxSize + 10, qrBoxY + qrBoxSize + 10);
+        ctx.lineTo(qrBoxX + qrBoxSize + 10, qrBoxY + qrBoxSize - cLen);
+        ctx.stroke();
+
+        // Dibujar QR_3.png o matriz QR completa de alta densidad (nunca queda en blanco)
+        let drewRasterQr = false;
+        if (useExternalImages && qrImage && qrImage.complete && qrImage.naturalWidth > 0) {
+          try {
+            ctx.drawImage(qrImage, qrBoxX + 22, qrBoxY + 22, qrBoxSize - 44, qrBoxSize - 44);
+            drewRasterQr = true;
+          } catch (e) {
+            drewRasterQr = false;
+          }
+        }
+        if (!drewRasterQr) {
+          renderCrispQrMatrix(ctx, qrBoxX + 24, qrBoxY + 24, qrBoxSize - 48);
+        }
+
+        // 8. Pie de página 100% despejado sobre fondo crema (#F5EFE0) sin ninguna hoja detrás
+        ctx.fillStyle = '#2E371E';
+        ctx.font = '700 20px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('MUESTRA ESTE CÓDIGO QR EN LA RECEPCIÓN DEL EVENTO', 540, 1566);
+
+        drawMayanDivider(ctx, 540, 1612, 460);
+
+        ctx.fillStyle = '#8D3B1A';
+        ctx.font = 'italic 700 58px "Cormorant Garamond", Georgia, serif';
+        ctx.fillText('¡Te esperamos!', 540, 1684);
+
+        ctx.fillStyle = '#2E371E';
+        ctx.font = '600 34px "Cormorant Garamond", Georgia, serif';
+        ctx.fillText('Una noche para celebrar el sabor de nuestra tierra.', 540, 1738);
+
+        ctx.fillStyle = '#2E371E';
+        ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText('Licenciatura en Gastronomía · 10° Cuatrimestre Grupo A · UT del Mayab', 540, 1788);
+
+        // Pequeño ornamento central inferior antes del borde
+        ctx.fillStyle = '#B57C2E';
+        ctx.beginPath();
+        ctx.moveTo(540, 1816);
+        ctx.lineTo(548, 1824);
+        ctx.lineTo(540, 1832);
+        ctx.lineTo(532, 1824);
+        ctx.closePath();
+        ctx.fill();
+
+        return canvas;
+      }
+
+      async function generateAndDownloadFormalCard() {
+        const originalLabel = downloadBtnText.textContent;
+        downloadBtnText.textContent = 'Generando tarjeta formal...';
+
+        try {
+          await document.fonts.ready;
+        } catch (e) {}
+
+        let dataUrl = '';
+        try {
+          const canvas = renderFormalPassCanvas(true);
+          dataUrl = canvas.toDataURL('image/png');
+        } catch (securityErr) {
+          // Respaldo inmediato si el navegador bloquea archivos locales por file:// CORS
+          const safeCanvas = renderFormalPassCanvas(false);
+          dataUrl = safeCanvas.toDataURL('image/png');
+        }
+
+        // Mostrar modal con la tarjeta generada y disparar la descarga
+        generatedCardPreviewImg.src = dataUrl;
+        directDownloadLink.href = dataUrl;
+        closeQrModal();
+        formalCardPreviewModal.classList.remove('hidden');
+
+        const tempLink = document.createElement('a');
+        tempLink.download = 'Invitacion_Formal_XIIMBAL_QR.png';
+        tempLink.href = dataUrl;
+        document.body.appendChild(tempLink);
+        tempLink.click();
+        document.body.removeChild(tempLink);
+
+        downloadBtnText.textContent = originalLabel;
+      }
+
+      downloadFormalCardBtn.addEventListener('click', generateAndDownloadFormalCard);
+      modalDownloadCardBtn.addEventListener('click', generateAndDownloadFormalCard);
+
+      function closeCardPreview() {
+        formalCardPreviewModal.classList.add('hidden');
+      }
+      closeCardPreviewBtn.addEventListener('click', closeCardPreview);
+      doneCardPreviewBtn.addEventListener('click', closeCardPreview);
+      formalCardPreviewModal.addEventListener('click', (e) => {
+        if (e.target === formalCardPreviewModal) closeCardPreview();
+      });
+
+      // -------------------------------------------------------------------
+      // 4. CUENTA REGRESIVA EN VIVO (10 DE DICIEMBRE DE 2026, 7:00 PM)
+      // -------------------------------------------------------------------
+      const eventTimestamp = new Date('2026-12-10T19:00:00-06:00').getTime();
+      const elDays = document.getElementById('cd-days');
+      const elHours = document.getElementById('cd-hours');
+      const elMinutes = document.getElementById('cd-minutes');
+      const elSeconds = document.getElementById('cd-seconds');
+
+      function updateCountdown() {
+        const now = Date.now();
+        const diff = Math.max(0, eventTimestamp - now);
+
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        elDays.textContent = String(d).padStart(2, '0');
+        elHours.textContent = String(h).padStart(2, '0');
+        elMinutes.textContent = String(m).padStart(2, '0');
+        elSeconds.textContent = String(s).padStart(2, '0');
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+
+      // -------------------------------------------------------------------
+      // 5. REVEAL SUAVE AL HACER SCROLL Y NAVEGACIÓN ACTIVA
+      // -------------------------------------------------------------------
+      const revealSections = document.querySelectorAll('.reveal-on-scroll');
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+            }
+          });
+        },
+        { threshold: 0.12 }
+      );
+      revealSections.forEach((sec) => observer.observe(sec));
+
+      const sections = document.querySelectorAll('main section[id], #pase-qr');
+      const navLinks = document.querySelectorAll('.nav-link');
+
+      window.addEventListener('scroll', () => {
+        let activeId = 'inicio';
+        sections.forEach((sec) => {
+          if (window.scrollY >= sec.offsetTop - 260) {
+            activeId = sec.getAttribute('id');
+          }
+        });
+        if (activeId === 'anfitriones') activeId = 'musica';
+        if (activeId === 'ubicacion') activeId = 'pase-qr';
+
+        navLinks.forEach((link) => {
+          if (link.getAttribute('href') === `#${activeId}`) {
+            link.classList.add('text-terracota', 'font-medium');
+          } else {
+            link.classList.remove('text-terracota', 'font-medium');
+          }
+        });
+      });
+
+      // -------------------------------------------------------------------
+      // 6. SINTETIZADOR DE JAZZ AMBIENTAL (WEB AUDIO API)
+      // -------------------------------------------------------------------
+      // 6. MOTOR ACÚSTICO EN TIEMPO REAL: "PALOMA KUH Y SU QUINTETO DE JAZZ"
+      //    (Saxofón Tenor, Piano Bill Evans, Contrabajo, Escobillas & Vibráfono
+      //     + Reverberación de Club de Jazz + Pentagrama Vibrante a 60 FPS)
+      // -------------------------------------------------------------------
+      const headerAudioBtn = document.getElementById('headerAudioBtn');
+      const headerAudioLabel = document.getElementById('headerAudioLabel');
+      const jazzSectionBtn = document.getElementById('jazzSectionBtn');
+      const jazzBtnLabel = document.getElementById('jazzBtnLabel');
+      const jazzPlayIconPath = document.getElementById('jazzPlayIconPath');
+      const jazzSoloImproBtn = document.getElementById('jazzSoloImproBtn');
+      const jazzStageWrapper = document.getElementById('jazzStageWrapper');
+      const liveStyleBadge = document.getElementById('liveStyleBadge');
+      const liveChordReadout = document.getElementById('liveChordReadout');
+      const liveVoiceReadout = document.getElementById('liveVoiceReadout');
+      const jazzStaffCanvas = document.getElementById('jazzStaffCanvas');
+      const optionalLocalJazzAudio = document.getElementById('optionalLocalJazzAudio');
+      const localAudioSwitchWrap = document.getElementById('localAudioSwitchWrap');
+      const toggleAudioSourceBtn = document.getElementById('toggleAudioSourceBtn');
+
+      // Partículas de notas musicales flotando sobre el pentagrama dorado
+      const visualNotes = [];
+      function spawnVisualNote(pitchHz, instrumentName, colorHex) {
+        if (!jazzStaffCanvas) return;
+        const normalized = Math.min(1, Math.max(0, (pitchHz - 70) / 680));
+        const targetY = 142 - normalized * 96;
+        visualNotes.push({
+          x: 68 + Math.random() * 540,
+          y: targetY,
+          vy: -0.45 - Math.random() * 0.4,
+          vx: (Math.random() - 0.5) * 0.45,
+          radius: instrumentName === 'bass' ? 8.5 : 7,
+          stemUp: targetY > 75,
+          color: colorHex,
+          alpha: 1,
+          life: 0,
+          maxLife: 78
+        });
+        if (visualNotes.length > 28) visualNotes.shift();
+      }
+
+      function pulseInstrumentDot(instKey) {
+        const dot = document.getElementById(`dot-${instKey}`);
+        if (!dot) return;
+        dot.classList.add('playing-hit');
+        setTimeout(() => dot.classList.remove('playing-hit'), 170);
+      }
+
+      const jazzPlayer = {
+        ctx: null,
+        masterGain: null,
+        compressor: null,
+        reverbNode: null,
+        analyser: null,
+        noiseBuffer: null,
+        isPlaying: false,
+        useLocalMp3: false,
+        schedulerTimer: null,
+        currentStyle: 'ballad',
+        tempo: 78,
+        beatIndex: 0,
+        barIndex: 0,
+
+        // Estado de los 5 instrumentos del quinteto
+        muted: {
+          sax: false,
+          piano: false,
+          bass: false,
+          drums: false,
+          vibes: false
+        },
+
+        // 3 Repertorios con progresiones reales de Jazz de Autor
+        repertoires: {
+          ballad: {
+            title: 'VELADA TERROIR · 78 BPM',
+            bpm: 78,
+            swingRatio: 0.62,
+            progression: [
+              {
+                symbol: 'Dm9',
+                soloist: 'Saxofón Tenor & Piano',
+                bassWalk: [73.42, 87.31, 98.00, 103.83], // D2, F2, G2, Ab2
+                pianoVoicing: [174.61, 220.00, 261.63, 329.63], // F3, A3, C4, E4
+                saxPhrase: [
+                  { sub: 0, freq: 329.63, dur: 1.4, slideFrom: 311.13 }, // E4
+                  { sub: 3, freq: 392.00, dur: 0.7 }, // G4
+                  { sub: 4, freq: 440.00, dur: 1.5, vibrato: true }, // A4
+                  { sub: 7, freq: 349.23, dur: 0.6 }  // F4
+                ],
+                vibesNotes: [{ sub: 2, freq: 659.25 }, { sub: 6, freq: 523.25 }]
+              },
+              {
+                symbol: 'G13(♭9)',
+                soloist: 'Saxofón Tenor & Vibráfono',
+                bassWalk: [98.00, 123.47, 146.83, 138.59], // G2, B2, D3, Db3
+                pianoVoicing: [174.61, 207.65, 246.94, 329.63], // F3, Ab3, B3, E4
+                saxPhrase: [
+                  { sub: 0, freq: 329.63, dur: 1.1 }, // E4
+                  { sub: 2, freq: 311.13, dur: 0.8 }, // Eb4
+                  { sub: 4, freq: 293.66, dur: 1.6, vibrato: true }, // D4
+                  { sub: 7, freq: 246.94, dur: 0.6 }  // B3
+                ],
+                vibesNotes: [{ sub: 1, freq: 659.25 }, { sub: 5, freq: 587.33 }]
+              },
+              {
+                symbol: 'Cmaj9(♯11)',
+                soloist: 'Diálogo de Sax & Piano',
+                bassWalk: [65.41, 82.41, 98.00, 116.54], // C2, E2, G2, Bb2
+                pianoVoicing: [164.81, 246.94, 293.66, 369.99], // E3, B3, D4, F#4
+                saxPhrase: [
+                  { sub: 1, freq: 392.00, dur: 1.2, slideFrom: 369.99 }, // G4
+                  { sub: 4, freq: 493.88, dur: 1.8, vibrato: true }, // B4
+                  { sub: 7, freq: 440.00, dur: 0.6 } // A4
+                ],
+                vibesNotes: [{ sub: 0, freq: 587.33 }, { sub: 4, freq: 739.99 }]
+              },
+              {
+                symbol: 'A7(♭13)',
+                soloist: 'Quinteto en Pleno',
+                bassWalk: [110.00, 138.59, 164.81, 77.78], // A2, C#3, E3, Eb2
+                pianoVoicing: [185.00, 220.00, 277.18, 349.23], // F#3, G3, C#4, F4
+                saxPhrase: [
+                  { sub: 0, freq: 349.23, dur: 1.1, slideFrom: 329.63 }, // F4
+                  { sub: 2, freq: 329.63, dur: 0.9 }, // E4
+                  { sub: 4, freq: 277.18, dur: 1.7, vibrato: true } // C#4
+                ],
+                vibesNotes: [{ sub: 3, freq: 554.37 }, { sub: 6, freq: 698.46 }]
+              },
+              {
+                symbol: 'Fmaj9',
+                soloist: 'Vibráfono Dorado & Sax',
+                bassWalk: [87.31, 110.00, 130.81, 123.47], // F2, A2, C3, B2
+                pianoVoicing: [164.81, 220.00, 261.63, 392.00], // E3, A3, C4, G4
+                saxPhrase: [
+                  { sub: 0, freq: 440.00, dur: 1.5, vibrato: true }, // A4
+                  { sub: 3, freq: 392.00, dur: 0.7 }, // G4
+                  { sub: 5, freq: 329.63, dur: 1.3 }  // E4
+                ],
+                vibesNotes: [{ sub: 0, freq: 523.25 }, { sub: 2, freq: 659.25 }, { sub: 6, freq: 783.99 }]
+              },
+              {
+                symbol: 'Bm7(♭5) · E7(♯9)',
+                soloist: 'Cadencia Nocturna',
+                bassWalk: [123.47, 146.83, 82.41, 116.54], // B2, D3, E2, Bb2
+                pianoVoicing: [164.81, 207.65, 293.66, 392.00], // E3, G#3, D4, G4 (#9)
+                saxPhrase: [
+                  { sub: 0, freq: 392.00, dur: 1.0, slideFrom: 369.99 }, // G4
+                  { sub: 2, freq: 349.23, dur: 0.9 }, // F4
+                  { sub: 4, freq: 329.63, dur: 1.8, vibrato: true } // E4
+                ],
+                vibesNotes: [{ sub: 2, freq: 587.33 }, { sub: 5, freq: 659.25 }]
+              }
+            ]
+          },
+
+          bossa: {
+            title: 'BOSSA DEL MAYAB · 106 BPM',
+            bpm: 106,
+            swingRatio: 0.51, // Corcheas lacias de Bossa Nova
+            progression: [
+              {
+                symbol: 'Am9',
+                soloist: 'Saxofón & Bossa Piano',
+                bassWalk: [110.00, 82.41, 110.00, 82.41],
+                pianoVoicing: [196.00, 246.94, 293.66, 329.63], // G3, B3, D4, E4
+                saxPhrase: [
+                  { sub: 0, freq: 493.88, dur: 0.9, slideFrom: 440.00 }, // B4
+                  { sub: 3, freq: 440.00, dur: 0.7 },
+                  { sub: 5, freq: 392.00, dur: 1.1, vibrato: true }
+                ],
+                vibesNotes: [{ sub: 1, freq: 659.25 }, { sub: 4, freq: 587.33 }]
+              },
+              {
+                symbol: 'Dm9',
+                soloist: 'Brisa Cálida · Vibráfono',
+                bassWalk: [73.42, 110.00, 73.42, 103.83],
+                pianoVoicing: [174.61, 220.00, 261.63, 329.63],
+                saxPhrase: [
+                  { sub: 0, freq: 329.63, dur: 0.9 },
+                  { sub: 2, freq: 349.23, dur: 0.7 },
+                  { sub: 4, freq: 440.00, dur: 1.3, vibrato: true }
+                ],
+                vibesNotes: [{ sub: 0, freq: 523.25 }, { sub: 3, freq: 659.25 }, { sub: 6, freq: 587.33 }]
+              },
+              {
+                symbol: 'G13',
+                soloist: 'Contrabajo & Sax Tenor',
+                bassWalk: [98.00, 146.83, 98.00, 130.81],
+                pianoVoicing: [174.61, 220.00, 246.94, 329.63],
+                saxPhrase: [
+                  { sub: 1, freq: 392.00, dur: 0.8 },
+                  { sub: 3, freq: 329.63, dur: 0.8 },
+                  { sub: 5, freq: 293.66, dur: 1.2, vibrato: true }
+                ],
+                vibesNotes: [{ sub: 2, freq: 659.25 }, { sub: 6, freq: 493.88 }]
+              },
+              {
+                symbol: 'Cmaj9 · E7(♯9)',
+                soloist: 'Paloma Kuh Quintet',
+                bassWalk: [65.41, 98.00, 82.41, 123.47],
+                pianoVoicing: [164.81, 207.65, 293.66, 392.00],
+                saxPhrase: [
+                  { sub: 0, freq: 329.63, dur: 1.0, slideFrom: 293.66 },
+                  { sub: 4, freq: 392.00, dur: 1.2, vibrato: true }
+                ],
+                vibesNotes: [{ sub: 1, freq: 587.33 }, { sub: 5, freq: 659.25 }]
+              }
+            ]
+          },
+
+          upbeat: {
+            title: 'CLUB NOCTURNO · 122 BPM',
+            bpm: 122,
+            swingRatio: 0.66, // Swing pronunciado de club de jazz
+            progression: [
+              {
+                symbol: 'Fm9',
+                soloist: 'Walking Bass & Sax Solo',
+                bassWalk: [87.31, 103.83, 116.54, 123.47], // F2, Ab2, Bb2, B2
+                pianoVoicing: [207.65, 261.63, 311.13, 392.00], // Ab3, C4, Eb4, G4
+                saxPhrase: [
+                  { sub: 0, freq: 392.00, dur: 0.6, slideFrom: 349.23 },
+                  { sub: 2, freq: 466.16, dur: 0.5 },
+                  { sub: 3, freq: 523.25, dur: 0.9, vibrato: true },
+                  { sub: 6, freq: 415.30, dur: 0.6 }
+                ],
+                vibesNotes: [{ sub: 1, freq: 622.25 }, { sub: 5, freq: 783.99 }]
+              },
+              {
+                symbol: 'B♭13',
+                soloist: 'Swing de Escobillas & Piano',
+                bassWalk: [116.54, 146.83, 174.61, 164.81], // Bb2, D3, F3, E3
+                pianoVoicing: [207.65, 261.63, 293.66, 392.00], // Ab3, C4, D4, G4
+                saxPhrase: [
+                  { sub: 0, freq: 392.00, dur: 0.7 },
+                  { sub: 2, freq: 349.23, dur: 0.5 },
+                  { sub: 4, freq: 293.66, dur: 1.1, vibrato: true }
+                ],
+                vibesNotes: [{ sub: 0, freq: 587.33 }, { sub: 4, freq: 783.99 }]
+              },
+              {
+                symbol: 'E♭maj9',
+                soloist: 'Vibráfono & Sax Tenor',
+                bassWalk: [77.78, 98.00, 116.54, 138.59], // Eb2, G2, Bb2, Db3
+                pianoVoicing: [196.00, 233.08, 277.18, 349.23], // G3, Bb3, D4, F4
+                saxPhrase: [
+                  { sub: 1, freq: 349.23, dur: 0.6, slideFrom: 311.13 },
+                  { sub: 3, freq: 392.00, dur: 0.6 },
+                  { sub: 5, freq: 466.16, dur: 1.0, vibrato: true }
+                ],
+                vibesNotes: [{ sub: 2, freq: 698.46 }, { sub: 6, freq: 587.33 }]
+              },
+              {
+                symbol: 'C7(♯9)',
+                soloist: 'Turnaround del Quinteto',
+                bassWalk: [65.41, 82.41, 98.00, 92.50], // C2, E2, G2, Gb2
+                pianoVoicing: [164.81, 233.08, 293.66, 311.13], // E3, Bb3, D#4
+                saxPhrase: [
+                  { sub: 0, freq: 466.16, dur: 0.5 },
+                  { sub: 2, freq: 415.30, dur: 0.5 },
+                  { sub: 4, freq: 392.00, dur: 1.1, vibrato: true }
+                ],
+                vibesNotes: [{ sub: 1, freq: 622.25 }, { sub: 5, freq: 523.25 }]
+              }
+            ]
+          }
+        },
+
+        init() {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioCtx();
+
+            // Compresor cálido de sala de jazz
+            this.compressor = this.ctx.createDynamicsCompressor();
+            this.compressor.threshold.setValueAtTime(-18, this.ctx.currentTime);
+            this.compressor.knee.setValueAtTime(24, this.ctx.currentTime);
+            this.compressor.ratio.setValueAtTime(3.2, this.ctx.currentTime);
+            this.compressor.attack.setValueAtTime(0.015, this.ctx.currentTime);
+            this.compressor.release.setValueAtTime(0.28, this.ctx.currentTime);
+
+            // Analizador en tiempo real para el pentagrama a 60 FPS
+            this.analyser = this.ctx.createAnalyser();
+            this.analyser.fftSize = 512;
+            this.analyser.smoothingTimeConstant = 0.82;
+
+            // Ganancia maestra
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.setValueAtTime(0.88, this.ctx.currentTime);
+
+            // Reverberación algorítmica estéreo de Club de Jazz (2.3 segundos)
+            this.reverbNode = this.ctx.createConvolver();
+            this.reverbNode.buffer = this.createJazzClubImpulse(2.3, 2.6);
+
+            const reverbMix = this.ctx.createGain();
+            reverbMix.gain.setValueAtTime(0.32, this.ctx.currentTime);
+
+            this.masterGain.connect(this.compressor);
+            this.masterGain.connect(this.reverbNode);
+            this.reverbNode.connect(reverbMix);
+            reverbMix.connect(this.compressor);
+
+            this.compressor.connect(this.analyser);
+            this.analyser.connect(this.ctx.destination);
+
+            // Buffer de ruido rosa/blanco suave para escobillas y aire de saxofón
+            this.noiseBuffer = this.createWarmNoiseBuffer(2.0);
+          }
+
+          if (this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+        },
+
+        createJazzClubImpulse(durationSec, decayRate) {
+          const rate = this.ctx.sampleRate;
+          const length = Math.floor(rate * durationSec);
+          const impulse = this.ctx.createBuffer(2, length, rate);
+          for (let ch = 0; ch < 2; ch++) {
+            const data = impulse.getChannelData(ch);
+            let lastOut = 0;
+            for (let i = 0; i < length; i++) {
+              const white = Math.random() * 2 - 1;
+              // Filtro pasa-bajos suave para que la sala suene cálida en madera
+              lastOut = (lastOut + 0.08 * white) / 1.08;
+              const env = Math.pow(1 - i / length, decayRate);
+              data[i] = lastOut * env * 1.8;
+            }
+          }
+          return impulse;
+        },
+
+        createWarmNoiseBuffer(durationSec) {
+          const rate = this.ctx.sampleRate;
+          const length = Math.floor(rate * durationSec);
+          const buffer = this.ctx.createBuffer(1, length, rate);
+          const data = buffer.getChannelData(0);
+          let b0 = 0, b1 = 0, b2 = 0;
+          for (let i = 0; i < length; i++) {
+            const white = Math.random() * 2 - 1;
+            b0 = 0.997 * b0 + white * 0.029;
+            b1 = 0.985 * b1 + white * 0.032;
+            b2 = 0.950 * b2 + white * 0.048;
+            data[i] = (b0 + b1 + b2 + white * 0.18) * 0.65;
+          }
+          return buffer;
+        },
+
+        // 1. CONTRABAJO ACÚSTICO (WALKING BASS EN MADERA)
+        playUprightBass(freq, startTime, duration) {
+          if (!this.ctx || this.muted.bass) return;
+
+          const oscFund = this.ctx.createOscillator();
+          const oscBody = this.ctx.createOscillator();
+          const filter = this.ctx.createBiquadFilter();
+          const gain = this.ctx.createGain();
+
+          oscFund.type = 'triangle';
+          oscBody.type = 'sawtooth';
+
+          oscFund.frequency.setValueAtTime(freq, startTime);
+          oscBody.frequency.setValueAtTime(freq, startTime);
+
+          // Resonancia de caja de madera del contrabajo
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(420, startTime);
+          filter.frequency.exponentialRampToValueAtTime(145, startTime + duration * 0.85);
+          filter.Q.setValueAtTime(2.8, startTime);
+
+          gain.gain.setValueAtTime(0.0001, startTime);
+          gain.gain.linearRampToValueAtTime(0.22, startTime + 0.022);
+          gain.gain.exponentialRampToValueAtTime(0.08, startTime + duration * 0.45);
+          gain.gain.exponentialRampToValueAtTime(0.0008, startTime + duration);
+
+          const bodyMix = this.ctx.createGain();
+          bodyMix.gain.setValueAtTime(0.32, startTime);
+
+          oscFund.connect(filter);
+          oscBody.connect(bodyMix);
+          bodyMix.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.masterGain);
+
+          oscFund.start(startTime);
+          oscBody.start(startTime);
+          oscFund.stop(startTime + duration + 0.04);
+          oscBody.stop(startTime + duration + 0.04);
+
+          const delayMs = Math.max(0, (startTime - this.ctx.currentTime) * 1000);
+          setTimeout(() => {
+            if (this.isPlaying) {
+              pulseInstrumentDot('bass');
+              spawnVisualNote(freq, 'bass', '#2E371E');
+            }
+          }, delayMs);
+        },
+
+        // 2. PIANO JAZZ (VOICINGS BILL EVANS / RHODES CÁLIDO CON ARPEGIADO HUMANO)
+        playJazzPianoVoicing(freqs, startTime, duration) {
+          if (!this.ctx || this.muted.piano) return;
+
+          freqs.forEach((freq, idx) => {
+            const noteStart = startTime + idx * 0.016; // 16ms de roll humano entre dedos
+            const oscMain = this.ctx.createOscillator();
+            const oscWarm = this.ctx.createOscillator();
+            const oscBell = this.ctx.createOscillator();
+
+            const gainMain = this.ctx.createGain();
+            const gainBell = this.ctx.createGain();
+            const filter = this.ctx.createBiquadFilter();
+
+            oscMain.type = 'sine';
+            oscWarm.type = 'triangle';
+            oscBell.type = 'sine';
+
+            oscMain.frequency.setValueAtTime(freq, noteStart);
+            oscWarm.frequency.setValueAtTime(freq * 1.0008, noteStart);
+            oscBell.frequency.setValueAtTime(freq * 2, noteStart);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1400, noteStart);
+            filter.frequency.exponentialRampToValueAtTime(480, noteStart + duration);
+
+            gainMain.gain.setValueAtTime(0.0001, noteStart);
+            gainMain.gain.linearRampToValueAtTime(0.042, noteStart + 0.018);
+            gainMain.gain.exponentialRampToValueAtTime(0.015, noteStart + duration * 0.5);
+            gainMain.gain.exponentialRampToValueAtTime(0.0005, noteStart + duration);
+
+            // Ataque cristalino de martillo suave
+            gainBell.gain.setValueAtTime(0.0001, noteStart);
+            gainBell.gain.linearRampToValueAtTime(0.012, noteStart + 0.008);
+            gainBell.gain.exponentialRampToValueAtTime(0.0001, noteStart + 0.24);
+
+            oscMain.connect(filter);
+            oscWarm.connect(filter);
+            oscBell.connect(gainBell);
+            gainBell.connect(filter);
+
+            filter.connect(gainMain);
+            gainMain.connect(this.masterGain);
+
+            oscMain.start(noteStart);
+            oscWarm.start(noteStart);
+            oscBell.start(noteStart);
+
+            oscMain.stop(noteStart + duration + 0.05);
+            oscWarm.stop(noteStart + duration + 0.05);
+            oscBell.stop(noteStart + 0.28);
+          });
+
+          const delayMs = Math.max(0, (startTime - this.ctx.currentTime) * 1000);
+          setTimeout(() => {
+            if (this.isPlaying) {
+              pulseInstrumentDot('piano');
+              spawnVisualNote(freqs[freqs.length - 1], 'piano', '#B57C2E');
+            }
+          }, delayMs);
+        },
+
+        // 3. SAXOFÓN TENOR EXPRESIVO (PORTAMENTO, FORMANTES DE METAL CÁLIDO, VIBRATO Y AIRE)
+        playTenorSaxNote(freq, startTime, duration, opts = {}) {
+          if (!this.ctx || this.muted.sax) return;
+
+          const oscReed = this.ctx.createOscillator();
+          const oscSub = this.ctx.createOscillator();
+          oscReed.type = 'sawtooth';
+          oscSub.type = 'triangle';
+
+          const startFreq = opts.slideFrom || freq * 0.975;
+          oscReed.frequency.setValueAtTime(startFreq, startTime);
+          oscReed.frequency.exponentialRampToValueAtTime(freq, startTime + 0.075);
+
+          oscSub.frequency.setValueAtTime(startFreq * 0.5, startTime);
+          oscSub.frequency.exponentialRampToValueAtTime(freq * 0.5, startTime + 0.075);
+
+          // Vibrato humano progresivo (5.3 Hz)
+          const vibOsc = this.ctx.createOscillator();
+          const vibGain = this.ctx.createGain();
+          vibOsc.frequency.setValueAtTime(5.3, startTime);
+          vibGain.gain.setValueAtTime(0.0, startTime);
+          if (opts.vibrato || duration > 0.85) {
+            vibGain.gain.linearRampToValueAtTime(4.2, startTime + Math.min(duration * 0.55, 0.45));
+          } else {
+            vibGain.gain.linearRampToValueAtTime(1.5, startTime + 0.2);
+          }
+          vibOsc.connect(vibGain);
+          vibGain.connect(oscReed.frequency);
+
+          // Doble formante acústico de cuerpo de Saxofón Tenor
+          const formant1 = this.ctx.createBiquadFilter();
+          formant1.type = 'bandpass';
+          formant1.frequency.setValueAtTime(680, startTime);
+          formant1.Q.setValueAtTime(2.1, startTime);
+
+          const formant2 = this.ctx.createBiquadFilter();
+          formant2.type = 'peaking';
+          formant2.frequency.setValueAtTime(1580, startTime);
+          formant2.gain.setValueAtTime(5.5, startTime);
+          formant2.Q.setValueAtTime(1.6, startTime);
+
+          const warmLowpass = this.ctx.createBiquadFilter();
+          warmLowpass.type = 'lowpass';
+          warmLowpass.frequency.setValueAtTime(920, startTime);
+          warmLowpass.frequency.linearRampToValueAtTime(1750, startTime + 0.14);
+          warmLowpass.frequency.exponentialRampToValueAtTime(860, startTime + duration);
+
+          const saxGain = this.ctx.createGain();
+          saxGain.gain.setValueAtTime(0.0001, startTime);
+          saxGain.gain.linearRampToValueAtTime(0.095, startTime + 0.065);
+          saxGain.gain.exponentialRampToValueAtTime(0.068, startTime + duration * 0.72);
+          saxGain.gain.exponentialRampToValueAtTime(0.0004, startTime + duration + 0.06);
+
+          // Soplo sutil de caña en el ataque
+          if (this.noiseBuffer) {
+            const breath = this.ctx.createBufferSource();
+            breath.buffer = this.noiseBuffer;
+            const breathFilter = this.ctx.createBiquadFilter();
+            breathFilter.type = 'bandpass';
+            breathFilter.frequency.setValueAtTime(1900, startTime);
+            breathFilter.Q.setValueAtTime(3.2, startTime);
+
+            const breathGain = this.ctx.createGain();
+            breathGain.gain.setValueAtTime(0.0001, startTime);
+            breathGain.gain.linearRampToValueAtTime(0.022, startTime + 0.03);
+            breathGain.gain.exponentialRampToValueAtTime(0.002, startTime + Math.min(0.22, duration));
+
+            breath.connect(breathFilter);
+            breathFilter.connect(breathGain);
+            breathGain.connect(this.masterGain);
+            breath.start(startTime);
+            breath.stop(startTime + Math.min(0.25, duration));
+          }
+
+          const subMix = this.ctx.createGain();
+          subMix.gain.setValueAtTime(0.26, startTime);
+
+          oscReed.connect(formant1);
+          oscReed.connect(warmLowpass);
+          oscSub.connect(subMix);
+          subMix.connect(warmLowpass);
+
+          formant1.connect(formant2);
+          warmLowpass.connect(formant2);
+          formant2.connect(saxGain);
+          saxGain.connect(this.masterGain);
+
+          oscReed.start(startTime);
+          oscSub.start(startTime);
+          vibOsc.start(startTime);
+
+          const stopAt = startTime + duration + 0.08;
+          oscReed.stop(stopAt);
+          oscSub.stop(stopAt);
+          vibOsc.stop(stopAt);
+
+          const delayMs = Math.max(0, (startTime - this.ctx.currentTime) * 1000);
+          setTimeout(() => {
+            pulseInstrumentDot('sax');
+            spawnVisualNote(freq, 'sax', '#8D3B1A');
+          }, delayMs);
+        },
+
+        // 4. VIBRÁFONO DORADO (ARMÓNICO 4:1 + TRÉMOLO DE MOTOR A 6.4 HZ)
+        playVibraphoneNote(freq, startTime, duration = 1.6) {
+          if (!this.ctx || this.muted.vibes) return;
+
+          const oscFund = this.ctx.createOscillator();
+          const oscOvertone = this.ctx.createOscillator();
+          oscFund.type = 'sine';
+          oscOvertone.type = 'sine';
+
+          oscFund.frequency.setValueAtTime(freq, startTime);
+          oscOvertone.frequency.setValueAtTime(freq * 4, startTime);
+
+          const overtoneGain = this.ctx.createGain();
+          overtoneGain.gain.setValueAtTime(0.015, startTime);
+          overtoneGain.gain.exponentialRampToValueAtTime(0.0001, startTime + 0.28);
+
+          // Motor de trémolo del vibráfono
+          const tremoloLfo = this.ctx.createOscillator();
+          const tremoloDepth = this.ctx.createGain();
+          tremoloLfo.frequency.setValueAtTime(6.4, startTime);
+          tremoloDepth.gain.setValueAtTime(0.014, startTime);
+
+          const mainGain = this.ctx.createGain();
+          mainGain.gain.setValueAtTime(0.0001, startTime);
+          mainGain.gain.linearRampToValueAtTime(0.048, startTime + 0.012);
+          mainGain.gain.exponentialRampToValueAtTime(0.0004, startTime + duration);
+
+          tremoloLfo.connect(tremoloDepth);
+          tremoloDepth.connect(mainGain.gain);
+
+          oscFund.connect(mainGain);
+          oscOvertone.connect(overtoneGain);
+          overtoneGain.connect(mainGain);
+          mainGain.connect(this.masterGain);
+
+          oscFund.start(startTime);
+          oscOvertone.start(startTime);
+          tremoloLfo.start(startTime);
+
+          const stopAt = startTime + duration + 0.05;
+          oscFund.stop(stopAt);
+          oscOvertone.stop(startTime + 0.3);
+          tremoloLfo.stop(stopAt);
+
+          const delayMs = Math.max(0, (startTime - this.ctx.currentTime) * 1000);
+          setTimeout(() => {
+            pulseInstrumentDot('vibes');
+            spawnVisualNote(freq, 'vibes', '#B57C2E');
+          }, delayMs);
+        },
+
+        // 5. BATERÍA CON ESCOBILLAS Y PLATILLO RIDE ("DING-DING-DA-DING")
+        playBrushAndRide(startTime, isHiHatChick, isBrushSwirl, rideVelocity = 0.032) {
+          if (!this.ctx || this.muted.drums || !this.noiseBuffer) return;
+
+          // Platillo Ride metálico suave con filtro pasa-altos y armónicos inarmónicos
+          const noiseSrc = this.ctx.createBufferSource();
+          noiseSrc.buffer = this.noiseBuffer;
+
+          const highpass = this.ctx.createBiquadFilter();
+          highpass.type = 'highpass';
+          highpass.frequency.setValueAtTime(5200, startTime);
+
+          const rideGain = this.ctx.createGain();
+          rideGain.gain.setValueAtTime(0.0001, startTime);
+          rideGain.gain.linearRampToValueAtTime(rideVelocity, startTime + 0.005);
+          rideGain.gain.exponentialRampToValueAtTime(0.0004, startTime + 0.34);
+
+          noiseSrc.connect(highpass);
+          highpass.connect(rideGain);
+          rideGain.connect(this.masterGain);
+
+          noiseSrc.start(startTime);
+          noiseSrc.stop(startTime + 0.36);
+
+          // Hi-hat suave con el pie en los tiempos 2 y 4
+          if (isHiHatChick) {
+            const chickSrc = this.ctx.createBufferSource();
+            chickSrc.buffer = this.noiseBuffer;
+            const bp = this.ctx.createBiquadFilter();
+            bp.type = 'bandpass';
+            bp.frequency.setValueAtTime(7600, startTime);
+            bp.Q.setValueAtTime(2.6, startTime);
+
+            const chickGain = this.ctx.createGain();
+            chickGain.gain.setValueAtTime(0.0001, startTime);
+            chickGain.gain.linearRampToValueAtTime(0.042, startTime + 0.004);
+            chickGain.gain.exponentialRampToValueAtTime(0.0002, startTime + 0.075);
+
+            chickSrc.connect(bp);
+            bp.connect(chickGain);
+            chickGain.connect(this.masterGain);
+            chickSrc.start(startTime);
+            chickSrc.stop(startTime + 0.085);
+          }
+
+          // Barrido continuo de escobilla sobre la tarola (Brush Swirl)
+          if (isBrushSwirl) {
+            const swirlSrc = this.ctx.createBufferSource();
+            swirlSrc.buffer = this.noiseBuffer;
+            const swirlBp = this.ctx.createBiquadFilter();
+            swirlBp.type = 'bandpass';
+            swirlBp.frequency.setValueAtTime(1650, startTime);
+            swirlBp.Q.setValueAtTime(1.4, startTime);
+
+            const swirlGain = this.ctx.createGain();
+            swirlGain.gain.setValueAtTime(0.0001, startTime);
+            swirlGain.gain.linearRampToValueAtTime(0.022, startTime + 0.09);
+            swirlGain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.42);
+
+            swirlSrc.connect(swirlBp);
+            swirlBp.connect(swirlGain);
+            swirlGain.connect(this.masterGain);
+            swirlSrc.start(startTime);
+            swirlSrc.stop(startTime + 0.45);
+          }
+
+          const delayMs = Math.max(0, (startTime - this.ctx.currentTime) * 1000);
+          setTimeout(() => {
+            if (this.isPlaying) pulseInstrumentDot('drums');
+          }, delayMs);
+        },
+
+        // Programador de un compás o tiempo (Quarter-note beat scheduler)
+        scheduleBeat() {
+          if (!this.ctx || !this.isPlaying || this.useLocalMp3) return;
+
+          const rep = this.repertoires[this.currentStyle];
+          const beatDur = 60 / rep.bpm;
+          const swingOffset = beatDur * rep.swingRatio;
+          const now = this.ctx.currentTime + 0.04;
+
+          const barObj = rep.progression[this.barIndex % rep.progression.length];
+          const beatInBar = this.beatIndex % 4;
+
+          // Actualizar lectura visual de acorde y solista
+          liveChordReadout.textContent = barObj.symbol;
+          liveVoiceReadout.textContent = barObj.soloist;
+
+          // 1. Contrabajo en cada tiempo (4/4 Walking Bass)
+          const bassFreq = barObj.bassWalk[beatInBar];
+          this.playUprightBass(bassFreq, now, beatDur * 0.94);
+
+          // 2. Comping de Piano Jazz (Tiempo 1 largo y síncopa de swing en el tiempo 2 "&" o 4)
+          if (beatInBar === 0) {
+            this.playJazzPianoVoicing(barObj.pianoVoicing, now, beatDur * 2.1);
+          } else if (beatInBar === 2) {
+            // Comping sincopado en el off-beat del tiempo 3
+            const invertedVoicing = barObj.pianoVoicing.map((f, i) => (i === 0 ? f * 2 : f));
+            this.playJazzPianoVoicing(invertedVoicing, now + swingOffset, beatDur * 1.35);
+          }
+
+          // 3. Batería con Escobillas y Patrón de Swing en el Ride ("ding - ding-da - ding")
+          const isBackbeat = beatInBar === 1 || beatInBar === 3;
+          this.playBrushAndRide(now, isBackbeat, beatInBar % 2 === 0, isBackbeat ? 0.036 : 0.026);
+          if (isBackbeat) {
+            // La corchea de swing ("da") antes del tiempo 3 y del tiempo 1
+            this.playBrushAndRide(now + swingOffset, false, false, 0.022);
+          }
+
+          // 4. Frases de Saxofón Tenor (evaluando subdivisión 0..7 dentro del compás)
+          const subDownbeat = beatInBar * 2;
+          const subUpbeat = beatInBar * 2 + 1;
+
+          barObj.saxPhrase.forEach((note) => {
+            if (note.sub === subDownbeat) {
+              this.playTenorSaxNote(note.freq, now, note.dur * beatDur * 0.55, note);
+            } else if (note.sub === subUpbeat) {
+              this.playTenorSaxNote(note.freq, now + swingOffset, note.dur * beatDur * 0.55, note);
+            }
+          });
+
+          // 5. Respuestas cristalinas del Vibráfono Dorado
+          barObj.vibesNotes.forEach((vNote) => {
+            if (vNote.sub === subDownbeat) {
+              this.playVibraphoneNote(vNote.freq, now, beatDur * 1.5);
+            } else if (vNote.sub === subUpbeat) {
+              this.playVibraphoneNote(vNote.freq, now + swingOffset, beatDur * 1.4);
+            }
+          });
+
+          // Avanzar puntero de compás
+          this.beatIndex++;
+          if (this.beatIndex % 4 === 0) {
+            this.barIndex++;
+          }
+        },
+
+        // Improvisar una frase expresiva de Saxofón + Vibráfono al tocar el botón o el pentagrama
+        triggerExpressiveSaxLick() {
+          this.init();
+          const now = this.ctx.currentTime + 0.02;
+          const licks = [
+            [
+              { f: 392.00, d: 0.24, s: 369.99 },
+              { f: 440.00, d: 0.24 },
+              { f: 523.25, d: 0.28 },
+              { f: 659.25, d: 0.85, v: true }
+            ],
+            [
+              { f: 587.33, d: 0.22, s: 523.25 },
+              { f: 523.25, d: 0.22 },
+              { f: 440.00, d: 0.26 },
+              { f: 392.00, d: 0.9, v: true }
+            ],
+            [
+              { f: 329.63, d: 0.22 },
+              { f: 392.00, d: 0.22 },
+              { f: 493.88, d: 0.28 },
+              { f: 587.33, d: 0.95, v: true }
+            ]
+          ];
+          const chosen = licks[Math.floor(Math.random() * licks.length)];
+          let offset = 0;
+          chosen.forEach((n) => {
+            this.playTenorSaxNote(n.f, now + offset, n.d, { slideFrom: n.s, vibrato: n.v });
+            offset += n.d * 0.92;
+          });
+          this.playVibraphoneNote(chosen[chosen.length - 1].f * 1.5, now + offset * 0.65, 1.8);
+        },
+
+        setStyle(styleKey) {
+          if (!this.repertoires[styleKey]) return;
+          this.currentStyle = styleKey;
+          const rep = this.repertoires[styleKey];
+          this.tempo = rep.bpm;
+          this.beatIndex = 0;
+          liveStyleBadge.textContent = rep.title;
+
+          if (this.isPlaying && !this.useLocalMp3) {
+            if (this.schedulerTimer) clearInterval(this.schedulerTimer);
+            const intervalMs = (60 / this.tempo) * 1000;
+            this.scheduleBeat();
+            this.schedulerTimer = setInterval(() => this.scheduleBeat(), intervalMs);
+          }
+        },
+
+        start() {
+          try {
+            if (this.useLocalMp3 && optionalLocalJazzAudio) {
+              optionalLocalJazzAudio.play();
+              this.isPlaying = true;
+              this.syncUI();
+              return;
+            }
+
+            this.init();
+            this.isPlaying = true;
+            this.syncUI();
+
+            if (this.schedulerTimer) clearInterval(this.schedulerTimer);
+            const rep = this.repertoires[this.currentStyle];
+            this.tempo = rep.bpm;
+            const intervalMs = (60 / this.tempo) * 1000;
+
+            this.scheduleBeat();
+            this.schedulerTimer = setInterval(() => {
+              if (this.isPlaying) this.scheduleBeat();
+            }, intervalMs);
+          } catch (err) {
+            console.warn('Audio requiere interacción:', err);
+          }
+        },
+
+        stop() {
+          this.isPlaying = false;
+          if (this.schedulerTimer) {
+            clearInterval(this.schedulerTimer);
+            this.schedulerTimer = null;
+          }
+          if (optionalLocalJazzAudio) {
+            optionalLocalJazzAudio.pause();
+          }
+          this.syncUI();
+        },
+
+        toggle() {
+          this.isPlaying ? this.stop() : this.start();
+        },
+
+        syncUI() {
+          if (this.isPlaying) {
+            headerAudioBtn.classList.add('is-playing');
+            headerAudioLabel.textContent = 'Jazz On';
+            jazzBtnLabel.textContent = 'Pausar Quinteto de Jazz';
+            jazzStageWrapper.classList.add('jazz-active');
+            if (jazzPlayIconPath) {
+              jazzPlayIconPath.setAttribute('d', 'M6 5h4v14H6V5zm8 0h4v14h-4V5z');
+            }
+          } else {
+            headerAudioBtn.classList.remove('is-playing');
+            headerAudioLabel.textContent = 'Jazz';
+            jazzBtnLabel.textContent = 'Escuchar Quinteto en Vivo';
+            jazzStageWrapper.classList.remove('jazz-active');
+            if (jazzPlayIconPath) {
+              jazzPlayIconPath.setAttribute('d', 'M8 5v14l11-7z');
+            }
+          }
+        }
+      };
+
+      // Eventos de reproducción, cambio de repertorio e instrumentos
+      headerAudioBtn.addEventListener('click', () => jazzPlayer.toggle());
+      jazzSectionBtn.addEventListener('click', () => jazzPlayer.toggle());
+
+      jazzSoloImproBtn.addEventListener('click', () => {
+        if (!jazzPlayer.isPlaying) jazzPlayer.start();
+        jazzPlayer.triggerExpressiveSaxLick();
+      });
+
+      document.querySelectorAll('.jazz-style-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const styleKey = btn.getAttribute('data-style');
+          document.querySelectorAll('.jazz-style-btn').forEach((b) => {
+            b.classList.remove('bg-oliva', 'text-crema', 'font-bold');
+            b.classList.add('text-oliva', 'font-semibold');
+          });
+          btn.classList.add('bg-oliva', 'text-crema', 'font-bold');
+          btn.classList.remove('text-oliva', 'font-semibold');
+
+          jazzPlayer.setStyle(styleKey);
+          if (!jazzPlayer.isPlaying) jazzPlayer.start();
+        });
+      });
+
+      document.querySelectorAll('.inst-pill').forEach((pill) => {
+        pill.addEventListener('click', () => {
+          const inst = pill.getAttribute('data-inst');
+          jazzPlayer.muted[inst] = !jazzPlayer.muted[inst];
+          pill.classList.toggle('is-muted', jazzPlayer.muted[inst]);
+          if (!jazzPlayer.muted[inst] && !jazzPlayer.isPlaying) {
+            jazzPlayer.start();
+          }
+        });
+      });
+
+      // Detectar si existe un archivo opcional jazz.mp3 en la carpeta
+      if (optionalLocalJazzAudio) {
+        optionalLocalJazzAudio.addEventListener('loadedmetadata', () => {
+          localAudioSwitchWrap.classList.remove('hidden');
+        });
+        toggleAudioSourceBtn.addEventListener('click', () => {
+          const wasPlaying = jazzPlayer.isPlaying;
+          jazzPlayer.stop();
+          jazzPlayer.useLocalMp3 = !jazzPlayer.useLocalMp3;
+          toggleAudioSourceBtn.textContent = jazzPlayer.useLocalMp3
+            ? 'Volver al Sintetizador del Quinteto en Vivo'
+            : 'Alternar a pista grabada (jazz.mp3 detectado)';
+          if (wasPlaying) jazzPlayer.start();
+        });
+      }
+
+      // -------------------------------------------------------------------
+      // 7. VISUALIZADOR EDITORIAL A 60 FPS EN EL PENTAGRAMA DE LA PÁGINA 4 DEL PDF
+      // -------------------------------------------------------------------
+      if (jazzStaffCanvas) {
+        const sCtx = jazzStaffCanvas.getContext('2d');
+        const timeDomainArray = new Uint8Array(256);
+        let idlePhase = 0;
+
+        jazzStaffCanvas.addEventListener('click', (e) => {
+          if (!jazzPlayer.isPlaying) jazzPlayer.start();
+          const rect = jazzStaffCanvas.getBoundingClientRect();
+          const relX = (e.clientX - rect.left) / rect.width;
+          const scaleFreqs = [293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25, 587.33, 659.25];
+          const chosenFreq = scaleFreqs[Math.min(scaleFreqs.length - 1, Math.floor(relX * scaleFreqs.length))];
+          jazzPlayer.init();
+          jazzPlayer.playTenorSaxNote(chosenFreq, jazzPlayer.ctx.currentTime + 0.01, 0.75, { vibrato: true });
+          jazzPlayer.playVibraphoneNote(chosenFreq * 1.5, jazzPlayer.ctx.currentTime + 0.08, 1.3);
+        });
+
+        function renderJazzStaffFrame() {
+          requestAnimationFrame(renderJazzStaffFrame);
+          const w = jazzStaffCanvas.width;
+          const h = jazzStaffCanvas.height;
+          sCtx.clearRect(0, 0, w, h);
+
+          idlePhase += jazzPlayer.isPlaying ? 0.065 : 0.022;
+
+          let waveEnergy = 0;
+          if (jazzPlayer.analyser && jazzPlayer.isPlaying) {
+            jazzPlayer.analyser.getByteTimeDomainData(timeDomainArray);
+            for (let i = 0; i < timeDomainArray.length; i++) {
+              waveEnergy += Math.abs(timeDomainArray[i] - 128);
+            }
+            waveEnergy = waveEnergy / timeDomainArray.length;
+          }
+
+          // Dibujar las 3 líneas doradas del pentagrama del PDF vibrando como cuerdas acústicas
+          const staffYPositions = [76, 108, 140];
+          staffYPositions.forEach((baseY, lineIdx) => {
+            sCtx.beginPath();
+            sCtx.strokeStyle = '#B57C2E';
+            sCtx.lineWidth = 2.6;
+            sCtx.lineCap = 'round';
+
+            for (let x = 28; x <= w - 28; x += 8) {
+              const normX = (x - 28) / (w - 56);
+              const windowEnvelope = Math.sin(normX * Math.PI); // Extremos fijos como cuerdas reales
+
+              let displacement = Math.sin(normX * 7 + idlePhase + lineIdx * 1.3) * 1.6 * windowEnvelope;
+              if (jazzPlayer.analyser && jazzPlayer.isPlaying) {
+                const sampleIdx = Math.floor(normX * (timeDomainArray.length - 1));
+                const audioSample = (timeDomainArray[sampleIdx] - 128) / 128;
+                displacement += audioSample * 22 * windowEnvelope;
+              }
+
+              const y = baseY + displacement;
+              if (x === 28) sCtx.moveTo(x, y);
+              else sCtx.lineTo(x, y);
+            }
+            sCtx.stroke();
+          });
+
+          // Dibujar las 3 notas emblemáticas del PDF oscilando armónicamente sobre las cuerdas
+          const iconicNotes = [
+            { x: 175, baseLineY: 140, phaseOffset: 0 },
+            { x: 340, baseLineY: 108, phaseOffset: 1.4 },
+            { x: 505, baseLineY: 76, phaseOffset: 2.8 }
+          ];
+
+          iconicNotes.forEach((n) => {
+            const bounce = Math.sin(idlePhase * 1.4 + n.phaseOffset) * (jazzPlayer.isPlaying ? 6 + waveEnergy * 0.35 : 3.5);
+            const ny = n.baseLineY + bounce;
+
+            // Halo sutil cuando suena el quinteto
+            if (jazzPlayer.isPlaying) {
+              sCtx.beginPath();
+              sCtx.arc(n.x, ny, 15 + Math.min(8, waveEnergy * 0.4), 0, Math.PI * 2);
+              sCtx.fillStyle = 'rgba(181, 124, 46, 0.14)';
+              sCtx.fill();
+            }
+
+            // Cabeza ovalada inclinada de nota de jazz
+            sCtx.save();
+            sCtx.translate(n.x, ny);
+            sCtx.rotate(-0.28);
+            sCtx.beginPath();
+            sCtx.ellipse(0, 0, 12.5, 9.5, 0, 0, Math.PI * 2);
+            sCtx.fillStyle = '#2E371E';
+            sCtx.fill();
+            sCtx.restore();
+
+            // Plica vertical (Stem)
+            sCtx.beginPath();
+            sCtx.moveTo(n.x + 11, ny - 2);
+            sCtx.lineTo(n.x + 11, ny - 68);
+            sCtx.strokeStyle = '#2E371E';
+            sCtx.lineWidth = 3.2;
+            sCtx.lineCap = 'round';
+            sCtx.stroke();
+          });
+
+          // Dibujar partículas de notas que brotan en tiempo real con cada nota del quinteto
+          for (let i = visualNotes.length - 1; i >= 0; i--) {
+            const p = visualNotes[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life++;
+            p.alpha = Math.max(0, 1 - p.life / p.maxLife);
+
+            sCtx.save();
+            sCtx.globalAlpha = p.alpha;
+            sCtx.fillStyle = p.color;
+            sCtx.strokeStyle = p.color;
+
+            sCtx.translate(p.x, p.y);
+            sCtx.rotate(-0.25);
+            sCtx.beginPath();
+            sCtx.ellipse(0, 0, p.radius, p.radius * 0.74, 0, 0, Math.PI * 2);
+            sCtx.fill();
+            sCtx.restore();
+
+            sCtx.save();
+            sCtx.globalAlpha = p.alpha;
+            sCtx.strokeStyle = p.color;
+            sCtx.lineWidth = 2;
+            sCtx.beginPath();
+            sCtx.moveTo(p.x + p.radius - 1, p.y);
+            sCtx.lineTo(p.x + p.radius - 1, p.y - 34);
+            sCtx.stroke();
+            sCtx.restore();
+
+            if (p.life >= p.maxLife) {
+              visualNotes.splice(i, 1);
+            }
+          }
+        }
+
+        renderJazzStaffFrame();
+      }
+    });
+  </script>
+</body>
+</html>
